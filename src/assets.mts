@@ -2,17 +2,17 @@ export type AssetType = "Image" | "Audio" | "Level";
 
 export interface AudioAssetRef {
   type: "Audio";
-  url: any;
+  url: string;
 }
 
 export interface ImageAssetRef {
   type: "Image";
-  url: any;
+  url: string;
 }
 
 export interface LevelAssetRef {
   type: "Level";
-  url: any;
+  url: string;
 }
 
 export type AssetRef = AudioAssetRef | ImageAssetRef | LevelAssetRef;
@@ -40,20 +40,19 @@ export class AssetList {
     return this.#level[Symbol.iterator]();
   }
 
-  public registerAudio(url: any): AudioAssetRef {
-    console.log(typeof url);
+  public registerAudio(url: string): AudioAssetRef {
     const ref: AssetRef = {type: "Audio", url};
     this.#audio.add(ref);
     return ref;
   }
 
-  public registerImage(url: any): ImageAssetRef {
+  public registerImage(url: string): ImageAssetRef {
     const ref: AssetRef = {type: "Image", url};
     this.#image.add(ref);
     return ref;
   }
 
-  public registerLevel(url: any): LevelAssetRef {
+  public registerLevel(url: string): LevelAssetRef {
     const ref: AssetRef = {type: "Level", url};
     this.#level.add(ref);
     return ref;

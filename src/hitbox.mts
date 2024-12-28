@@ -41,12 +41,20 @@ export class Vec2<T = number> {
     this.y = y;
   }
 
+  isZero(): boolean {
+    return this.x === 0 && this.y === 0;
+  }
+
   add(this: Vec2, other: Vec2): Vec2 {
     return new Vec2(this.x + other.x, this.y + other.y);
   }
 
   sub(this: Vec2, other: Vec2): Vec2 {
     return new Vec2(this.x - other.x, this.y - other.y);
+  }
+
+  neg(this: Vec2): Vec2 {
+    return new Vec2(-this.x, -this.y);
   }
 
   scalarMult(this: Vec2, other: number): Vec2 {
@@ -75,6 +83,10 @@ export class Vec2<T = number> {
 
   len(this: Vec2): number {
     return Math.sqrt(this.len2());
+  }
+
+  angle(this: Vec2): number {
+    return Math.atan2(this.x, this.y);
   }
 
   static ZERO: Vec2 = new Vec2(0, 0);

@@ -8,8 +8,9 @@ import {
   MIN_VIEWPORT_HEIGHT,
   BASE_CELL_PX,
   TICK_DURATION_MS,
-  VIEW_WIDTH
+  VIEW_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, BORDER_WIDTH
 } from "./game/data.mjs";
+import { Player } from "./game/player.mts";
 
 export interface State {
   globalState: GlobalState;
@@ -25,7 +26,7 @@ export class App {
   #tickCount: number;
   #frameCount: number;
   #refreshCallback: null | (() => void);
-  #inputCallback: null | (() => void);
+  #inputCallback: null | ((ev: UIEvent) => void);
   #refreshCallbackHandle: null | number;
   #assets: AssetLoader;
   #loadView: null | LoadView;
@@ -69,17 +70,31 @@ export class App {
 
   #enable(): void {
     this.#refreshCallback = () => this.#refresh();
-    this.#inputCallback = () => this.onInput();
+    this.#inputCallback = (ev: UIEvent) => this.onInput(ev);
     window.addEventListener("click", this.#inputCallback);
+    window.addEventListener("keydown", this.#inputCallback);
+    window.addEventListener("keyup", this.#inputCallback);
     this.#refresh();
   }
 
   #refresh(): void {
-    this.#frameCount += 1;
-    this.#tickCount += 1;
-    // const prog = this.#assets.progress();
-    // this.#root.innerHTML = this.#state.globalState + " -- " + prog.bytesTotal;
+    const now: DOMHighResTimeStamp = performance.now();
+    const elapsed = now - this.#startTime;
+    const tickId = Math.floor(elapsed / TICK_DURATION_MS);
+    const prevTickId = this.#tickCount + this.#droppedTicks
+    const remainingTicks = tickId - prevTickId;
+    const ticksToCompute = Math.max(remainingTicks, 3);
+    const extraDroppedTicks = remainingTicks - ticksToCompute;
+    // todo: print warning when dropping ticks
+    this.#droppedTicks += extraDroppedTicks;
+    for (let t = 0; t < ticksToCompute; t++) {
+      this.#tickCount += 1;
+      if (this.#world !== null) {
+        this.#world.update(this.#tickCount);
+      }
+    }
 
+    this.#frameCount += 1;
     this.render();
 
     if (this.#refreshCallback !== null) {
@@ -87,16 +102,74 @@ export class App {
     }
   }
 
-  public onInput() {
+  public onInput(ev: UIEvent) {
     switch (this.#state.globalState) {
       case "Load": {
         const progress = this.#assets.progress();
-        if (progress.ready) {
+        if (progress.ready && ev.type === "click") {
           this.#state.globalState = "Menu";
         }
         break;
       }
       case "Menu": {
+        // todo: switch on target elem
+        if (ev.type === "click") {
+          this.#state.globalState = "Play";
+        }
+        break;
+      }
+      case "Play": {
+        if (ev.type === "keydown") {
+          const kev: KeyboardEvent = ev as KeyboardEvent;
+          switch (kev.key) {
+            case "ArrowUp":
+            case "W":
+              this.world().playerControl.jump = this.#tickCount;
+              break;
+            case "ArrowLeft":
+            case "A":
+              this.world().playerControl.left = this.#tickCount;
+              break;
+            case "ArrowRight":
+            case "D":
+              this.world().playerControl.right = this.#tickCount;
+              break;
+            case "ArrowDown":
+            case "S":
+              this.world().playerControl.down = this.#tickCount;
+              break;
+            case " ":
+            case "E":
+              this.world().playerControl.use = this.#tickCount;
+              break;
+          }
+        }
+        if (ev.type === "keyup") {
+          const kev: KeyboardEvent = ev as KeyboardEvent;
+          switch (kev.key) {
+            case "ArrowUp":
+            case "W":
+              this.world().playerControl.jump = null;
+              break;
+            case "ArrowLeft":
+            case "A":
+              this.world().playerControl.left = null;
+              break;
+            case "ArrowRight":
+            case "D":
+              this.world().playerControl.right = null;
+              break;
+            case "ArrowDown":
+            case "S":
+              this.world().playerControl.down = null;
+              break;
+            case " ":
+            case "E":
+              this.world().playerControl.use = null;
+              break;
+          }
+        }
+
         // todo: switch on target elem
         this.#state.globalState = "Play";
         break;
@@ -153,6 +226,7 @@ export class App {
         const pxRatio = window.devicePixelRatio;
         view.scale = scale;
         view.canvasScale = new Vec2(scale * pxRatio, scale * pxRatio);
+        view.size = new Vec2(VIEW_WIDTH, MIN_VIEWPORT_HEIGHT + extraRows);
 
         view.canvas.style.width = `${size.x}px`;
         view.canvas.style.height = `${size.y}px`;
@@ -251,6 +325,7 @@ export class App {
         context,
         scale: 1,
         canvasScale: new Vec2(1, 1),
+        size: new Vec2(VIEW_WIDTH, MIN_VIEWPORT_HEIGHT),
       };
       this.#playView = view;
     }
@@ -262,6 +337,10 @@ export class App {
       this.#world = new World(this.#assets);
       Solid.attach(this.#world, {center: new Vec2(1.5, 1.5), r: new Vec2(0.5, 0.5),});
       Solid.attach(this.#world, {center: new Vec2(2.5, 1.5), r: new Vec2(0.5, 0.5),});
+      Solid.attach(this.#world, {center: new Vec2(12.5, 4.5), r: new Vec2(12.5, 0.5),});
+      Solid.attach(this.#world, {center: new Vec2(-BORDER_WIDTH, 0), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT * 1000),});
+      Solid.attach(this.#world, {center: new Vec2(CHUNK_WIDTH + BORDER_WIDTH, 0), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT * 1000),});
+      Player.attach(this.#world, new Vec2(14.5, 0.5));
     }
     return this.#world;
   }
@@ -287,4 +366,5 @@ export interface PlayView {
   context: CanvasRenderingContext2D;
   scale: number;
   canvasScale: Vec2;
+  size: Vec2;
 }
