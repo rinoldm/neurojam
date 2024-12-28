@@ -1,13 +1,13 @@
 import {PlayView} from "../app.mts";
 import {Color} from "../color.mts";
-import {HitBox, hitTestRectPoint, RectData, RectHitBox, Vec2} from "../hitbox.mjs";
+import {HitBox, RectData, RectHitBox, Vec2} from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
 
 export type RelativePos = "Above" | "Below" | "Side";
 
-export class Solid extends Entity {
+export class Wall extends Entity {
   declare public hitbox: HitBox<RectHitBox>;
   color: Color;
   hasHit: boolean;
@@ -18,8 +18,8 @@ export class Solid extends Entity {
     this.hasHit = false;
   }
 
-  static attach(world: World, rect: RectData): Solid {
-    return world.register(id => new Solid(id, rect));
+  static attach(world: World, rect: RectData): Wall {
+    return world.register(id => new Wall(id, rect));
   }
 
   render(view: PlayView): void {

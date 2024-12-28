@@ -1,4 +1,5 @@
 import { Vec2 } from "./hitbox.mts";
+import {CHUNK_HEIGHT, CHUNK_WIDTH} from "./game/data.mjs";
 
 export type LayerType = "Tile" | "Object";
 
@@ -54,6 +55,7 @@ export class Level {
 
   private constructor() {
     this.tileSize = new Vec2(32, 32);
+    this.size = new Vec2(CHUNK_WIDTH, CHUNK_HEIGHT);
     this.layers = [];
   }
 

@@ -4,7 +4,7 @@ import {PlayView} from "../app.mjs";
 import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT} from "./data.mjs";
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
-import {Solid} from "./solid.mts";
+import {Wall} from "./wall.mts";
 import {LEVEL000} from "../assets/index.mjs";
 import { Level } from "../level.mts";
 
@@ -65,7 +65,7 @@ export class World {
       }
     }
     for (const entity of this.entities.values()) {
-      if (entity instanceof Solid) {
+      if (entity instanceof Wall) {
         entity.update(this, tick);
       }
     }
@@ -138,7 +138,7 @@ export class World {
 
           console.log(worldCenter);
 
-          Solid.attach(this, {center: worldCenter, r: worldRadius});
+          Wall.attach(this, {center: worldCenter, r: worldRadius});
 
           break;
         }
