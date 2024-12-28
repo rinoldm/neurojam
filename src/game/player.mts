@@ -32,7 +32,7 @@ export class Player extends Entity {
     } else if (world.playerControl.left) {
       dx = -0.06;
     }
-    let dy = -0.01;
+    let dy = -0.05;
     if (world.playerControl.jump) {
       dy = +0.05;
     }

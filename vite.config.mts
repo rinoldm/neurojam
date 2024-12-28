@@ -1,3 +1,3 @@
 export default {
-  assetsInclude: ["**/*.tmx"],
+  assetsInclude: ["**/*.xml", "**/*.tmx"],
 };

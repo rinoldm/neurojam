@@ -1,4 +1,7 @@
-export type AssetType = "Image" | "Audio" | "Level";
+import { Level } from "./level.mts";
+import {Tileset} from "./tileset.mjs";
+
+export type AssetType = "Image" | "Audio" | "Level" | "Tileset";
 
 export interface AudioAssetRef {
   type: "Audio";
@@ -8,6 +11,7 @@ export interface AudioAssetRef {
 export interface ImageAssetRef {
   type: "Image";
   url: string;
+  name: string;
 }
 
 export interface LevelAssetRef {
@@ -15,46 +19,64 @@ export interface LevelAssetRef {
   url: string;
 }
 
-export type AssetRef = AudioAssetRef | ImageAssetRef | LevelAssetRef;
+export interface TilesetAssetRef {
+  type: "Tileset";
+  url: string;
+  name: string;
+}
+
+export type AssetRef = AudioAssetRef | ImageAssetRef | LevelAssetRef | TilesetAssetRef;
 
 export class AssetList {
   #audio: Set<AudioAssetRef>;
   #image: Set<ImageAssetRef>;
   #level: Set<LevelAssetRef>;
+  #tileset: Set<TilesetAssetRef>;
 
   constructor() {
     this.#audio = new Set();
     this.#image = new Set();
     this.#level = new Set();
+    this.#tileset = new Set();
   }
 
-  public audioIter(): IterableIterator<AssetRef> {
+  public audioIter(): IterableIterator<AudioAssetRef> {
     return this.#audio[Symbol.iterator]();
   }
 
-  public imageIter(): IterableIterator<AssetRef> {
+  public imageIter(): IterableIterator<ImageAssetRef> {
     return this.#image[Symbol.iterator]();
   }
 
-  public levelIter(): IterableIterator<AssetRef> {
+  public levelIter(): IterableIterator<LevelAssetRef> {
     return this.#level[Symbol.iterator]();
   }
 
+  public tilesetIter(): IterableIterator<TilesetAssetRef> {
+    return this.#tileset[Symbol.iterator]();
+  }
+
   public registerAudio(url: string): AudioAssetRef {
-    const ref: AssetRef = {type: "Audio", url};
+    const ref: AudioAssetRef = {type: "Audio", url};
     this.#audio.add(ref);
     return ref;
   }
 
-  public registerImage(url: string): ImageAssetRef {
-    const ref: AssetRef = {type: "Image", url};
+  public registerImage(name: string, url: string): ImageAssetRef {
+    const ref: ImageAssetRef = {type: "Image", url, name};
     this.#image.add(ref);
     return ref;
   }
 
   public registerLevel(url: string): LevelAssetRef {
-    const ref: AssetRef = {type: "Level", url};
+    const ref: LevelAssetRef = {type: "Level", url};
     this.#level.add(ref);
+    return ref;
+  }
+
+  public registerTileset(name: string, url: string): TilesetAssetRef {
+    const ref: TilesetAssetRef = {type: "Tileset", url, name};
+    this.#tileset.add(ref);
     return ref;
   }
 }
@@ -79,12 +101,16 @@ interface AssetTask<Target> {
 }
 
 export class AssetLoader {
-  #audio: Map<AssetRef, AssetTask<HTMLAudioElement>>;
-  #image: Map<AssetRef, AssetTask<HTMLImageElement>>;
+  #audio: Map<AudioAssetRef, AssetTask<HTMLAudioElement>>;
+  #image: Map<ImageAssetRef, AssetTask<HTMLImageElement>>;
+  #tileset: Map<TilesetAssetRef, AssetTask<Tileset>>;
+  #level: Map<LevelAssetRef, AssetTask<Level>>;
 
   private constructor(list: AssetList) {
     this.#audio = new Map();
     this.#image = new Map();
+    this.#tileset = new Map();
+    this.#level = new Map();
     for (const audio of list.audioIter()) {
       const target = new Audio();
       const xhr = new XMLHttpRequest();
@@ -157,6 +183,77 @@ export class AssetLoader {
       xhr.send(null);
       this.#image.set(image,  imageLoader);
     }
+    for (const assetRef of list.tilesetIter()) {
+      const target = Tileset.default();
+      const xhr = new XMLHttpRequest();
+      const task: AssetTask<Tileset> = { target, loadedBytes: 0, xhr, ready: true, totalBytes: null };
+      const loadCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
+        const tileset = Tileset.fromXml(xhr.response);
+        task.target = tileset;
+        task.ready = true;
+        if (e.lengthComputable) {
+          task.totalBytes = e.total;
+        }
+        if (task.totalBytes === null) {
+          task.totalBytes = 1;
+        }
+        task.loadedBytes = task.totalBytes;
+      };
+      const progressCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
+        if (e.lengthComputable) {
+          task.totalBytes = e.total;
+        }
+        task.loadedBytes = e.loaded;
+      };
+      const loadStartCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
+        if (e.lengthComputable) {
+          task.totalBytes = e.total;
+        }
+        task.loadedBytes = e.loaded;
+      };
+      xhr.open("GET", assetRef.url, true);
+      xhr.responseType = "document";
+      xhr.addEventListener("load", loadCb);
+      xhr.addEventListener("progress", progressCb);
+      xhr.addEventListener("loadstart", loadStartCb);
+      xhr.send(null);
+      this.#tileset.set(assetRef,  task);
+    }
+    for (const assetRef of list.levelIter()) {
+      const target = Level.default();
+      const xhr = new XMLHttpRequest();
+      const task: AssetTask<Level> = { target, loadedBytes: 0, xhr, ready: true, totalBytes: null };
+      const loadCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
+        task.target = Level.fromXml(xhr.response);
+        task.ready = true;
+        if (e.lengthComputable) {
+          task.totalBytes = e.total;
+        }
+        if (task.totalBytes === null) {
+          task.totalBytes = 1;
+        }
+        task.loadedBytes = task.totalBytes;
+      };
+      const progressCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
+        if (e.lengthComputable) {
+          task.totalBytes = e.total;
+        }
+        task.loadedBytes = e.loaded;
+      };
+      const loadStartCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
+        if (e.lengthComputable) {
+          task.totalBytes = e.total;
+        }
+        task.loadedBytes = e.loaded;
+      };
+      xhr.open("GET", assetRef.url, true);
+      xhr.responseType = "document";
+      xhr.addEventListener("load", loadCb);
+      xhr.addEventListener("progress", progressCb);
+      xhr.addEventListener("loadstart", loadStartCb);
+      xhr.send(null);
+      this.#level.set(assetRef,  task);
+    }
   }
 
   public static load(list: AssetList): AssetLoader {
@@ -171,6 +268,14 @@ export class AssetLoader {
     return this.#image.get(imageRef)!.target;
   }
 
+  public getLevel(assetRef: LevelAssetRef): Level {
+    return this.#level.get(assetRef)!.target;
+  }
+
+  public getTileset(assetRef: TilesetAssetRef): Tileset {
+    return this.#tileset.get(assetRef)!.target;
+  }
+
   public progress(): LoadProgress {
     let assetTotal = 0;
     let assetOk = 0;
@@ -179,7 +284,7 @@ export class AssetLoader {
     let bytesLoaded = 0
     let bytesTotal = 0
 
-    const tasks = [...this.#audio.values(), ...this.#image.values()];
+    const tasks = [...this.#audio.values(), ...this.#image.values(), ...this.#level.values(), ...this.#tileset.values()];
 
     for (const task of tasks) {
       assetTotal += 1;
