@@ -123,23 +123,23 @@ export class App {
           const kev: KeyboardEvent = ev as KeyboardEvent;
           switch (kev.key) {
             case "ArrowUp":
-            case "W":
+            case "w":
               this.world().playerControl.jump = this.#tickCount;
               break;
             case "ArrowLeft":
-            case "A":
+            case "a":
               this.world().playerControl.left = this.#tickCount;
               break;
             case "ArrowRight":
-            case "D":
+            case "d":
               this.world().playerControl.right = this.#tickCount;
               break;
             case "ArrowDown":
-            case "S":
+            case "s":
               this.world().playerControl.down = this.#tickCount;
               break;
             case " ":
-            case "E":
+            case "e":
               this.world().playerControl.use = this.#tickCount;
               break;
           }
@@ -148,23 +148,23 @@ export class App {
           const kev: KeyboardEvent = ev as KeyboardEvent;
           switch (kev.key) {
             case "ArrowUp":
-            case "W":
+            case "w":
               this.world().playerControl.jump = null;
               break;
             case "ArrowLeft":
-            case "A":
+            case "a":
               this.world().playerControl.left = null;
               break;
             case "ArrowRight":
-            case "D":
+            case "d":
               this.world().playerControl.right = null;
               break;
             case "ArrowDown":
-            case "S":
+            case "s":
               this.world().playerControl.down = null;
               break;
             case " ":
-            case "E":
+            case "e":
               this.world().playerControl.use = null;
               break;
           }
