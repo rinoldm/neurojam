@@ -61,6 +61,10 @@ export class Vec2<T = number> {
     return new Vec2(this.x * other, this.y * other);
   }
 
+  elemMult(this: Vec2, other: Vec2): Vec2 {
+    return new Vec2(this.x * other.x, this.y * other.y);
+  }
+
   elemDiv(this: Vec2, other: Vec2): Vec2 {
     return new Vec2(this.x / other.x, this.y / other.y);
   }
@@ -90,6 +94,10 @@ export class Vec2<T = number> {
   }
 
   static ZERO: Vec2 = new Vec2(0, 0);
+  static TOP_LEFT: Vec2 = new Vec2(-1, 1);
+  static TOP_RIGHT: Vec2 = new Vec2(1, 1);
+  static BOTTOM_LEFT: Vec2 = new Vec2(-1, -1);
+  static BOTTOM_RIGHT: Vec2 = new Vec2(1, -1);
 }
 
 export class HitBox<Data extends AnyHitBox = AnyHitBox> {
@@ -111,7 +119,7 @@ export class HitBox<Data extends AnyHitBox = AnyHitBox> {
   }
 }
 
-function hitTestRectRect(a: RectData, b: RectData) : Vec2 | null {
+export function hitTestRectRect(a: RectData, b: RectData) : Vec2 | null {
   const delta = b.center.sub(a.center);
   const deltaAbs = delta.abs();
   const size = a.r.add(b.r);
@@ -126,7 +134,22 @@ function hitTestRectRect(a: RectData, b: RectData) : Vec2 | null {
   }
 }
 
-function hitTestRectCircle(a: RectData, b: CircleData) : Vec2 | null {
+export function hitTestRectPoint(a: RectData, b: PointData) : Vec2 | null {
+  const delta = b.center.sub(a.center);
+  const deltaAbs = delta.abs();
+  const size = a.r;
+  const hit = deltaAbs.sub(size);
+  if (hit.x >= 0 || hit.y >= 0) {
+    return null;
+  } else {
+    return new Vec2(
+      (delta.x < 0 ? -1 : 1) * hit.x,
+      (delta.y < 0 ? -1 : 1) * hit.y,
+    )
+  }
+}
+
+export function hitTestRectCircle(a: RectData, b: CircleData) : Vec2 | null {
   const delta = b.center.sub(a.center);
   const crossDist = delta.abs().sub(a.r);
   const foo = Math.min(Math.max(crossDist.x, crossDist.y), 0);

@@ -1,6 +1,6 @@
 import {PlayView} from "../app.mts";
 import {Color} from "../color.mts";
-import {HitBox, RectData, RectHitBox, Vec2} from "../hitbox.mjs";
+import {HitBox, hitTestRectPoint, RectData, RectHitBox, Vec2} from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
@@ -38,7 +38,27 @@ export class Solid extends Entity {
     if (hit === null) {
       return;
     }
-    player.moveRelative(new Vec2(0, -hit.y));
+
+    const bottomLeft = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.BOTTOM_LEFT));
+    const bottomRight = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.BOTTOM_RIGHT));
+    const topLeft = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.TOP_LEFT));
+    const topRight = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.TOP_RIGHT));
+
+    const bottomLeftHit = hitTestRectPoint(this.hitbox.data, {center: bottomLeft}) !== null;
+    const bottomRightHit = hitTestRectPoint(this.hitbox.data, {center: bottomRight}) !== null;
+    const topLeftHit = hitTestRectPoint(this.hitbox.data, {center: topLeft}) !== null;
+    const topRightHit = hitTestRectPoint(this.hitbox.data, {center: topRight}) !== null;
+
+    let dx = -hit.x;
+    if ((bottomLeftHit && bottomRightHit) || (topLeftHit && topRightHit)) {
+      dx = 0;
+    }
+    let dy = -hit.y;
+    if ((bottomLeftHit && topLeftHit) || (bottomRightHit && topRightHit)) {
+      dy = 0;
+    }
+
+    player.moveRelative(new Vec2(dx, dy));
     // const dir = player.hitbox.data.center.sub(this.hitbox.data.center);
 
   }

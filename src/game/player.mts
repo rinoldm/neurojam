@@ -41,7 +41,9 @@ export class Player extends Entity {
   }
 
   render(view: PlayView): void {
-    view.context.drawImage(this.asset, 0, 0, this.asset.width, this.asset.height, this.hitbox.data.center.x - this.hitbox.data.r.x, this.hitbox.data.center.y + this.hitbox.data.r.y, this.hitbox.data.r.x * 2, - this.hitbox.data.r.y * 2);
+    // view.context.drawImage(this.asset, 0, 0, this.asset.width, this.asset.height, this.hitbox.data.center.x - this.hitbox.data.r.x, this.hitbox.data.center.y + this.hitbox.data.r.y, this.hitbox.data.r.x * 2, - this.hitbox.data.r.y * 2);
+    view.context.fillStyle = "red";
+    view.context.fillRect(this.hitbox.data.center.x - this.hitbox.data.r.x, this.hitbox.data.center.y + this.hitbox.data.r.y, this.hitbox.data.r.x * 2, - this.hitbox.data.r.y * 2);
   }
 }
 
