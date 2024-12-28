@@ -8,10 +8,12 @@ import {PLAYER} from "../assets/index.mjs";
 export class Player extends Entity {
   declare public hitbox: HitBox<RectHitBox>;
   asset: HTMLImageElement;
+  onGround: Boolean;
 
   private constructor(id: number, asset: HTMLImageElement, rect: RectData) {
     super(id, HITBOX_DEPTH, new HitBox({type: "Rect", ...rect}))
     this.asset = asset;
+    this.onGround = true;
   }
 
   static attach(world: World, pos: Vec2): Player {
@@ -33,10 +35,11 @@ export class Player extends Entity {
       dx = -0.06;
     }
     let dy = -0.05;
-    if (world.playerControl.jump) {
-      dy = +0.05;
+    if (world.playerControl.jump && this.onGround) {
+      dy = +1.5;
     }
     this.moveRelative(new Vec2(dx, dy));
+    this.onGround = false;
     // console.log(this.pos);
   }
 

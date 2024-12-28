@@ -34,7 +34,7 @@ export class Solid extends Entity {
     this.updatedAt = tick;
     const player = world.player();
     const hit = this.hitbox.hitTest(player.hitbox);
-    console.log(hit);
+    // console.log(hit);
     this.hasHit = hit !== null;
     if (hit === null) {
       return;
@@ -48,6 +48,10 @@ export class Solid extends Entity {
     else {
       dx = 0;
     }
+    if (dy > 0) {
+      player.onGround = true;
+    }
+
 
     player.moveRelative(new Vec2(dx, dy));
   }
