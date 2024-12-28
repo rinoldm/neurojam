@@ -335,12 +335,12 @@ export class App {
   public world(): World {
     if (this.#world === null) {
       this.#world = new World(this.#assets);
-      Solid.attach(this.#world, {center: new Vec2(1.5, 1.5), r: new Vec2(0.5, 0.5),});
-      Solid.attach(this.#world, {center: new Vec2(2.5, 1.5), r: new Vec2(0.5, 0.5),});
-      Solid.attach(this.#world, {center: new Vec2(12.5, 4.5), r: new Vec2(12.5, 0.5),});
+      Solid.attach(this.#world, {center: new Vec2(1.5, -1.5), r: new Vec2(0.5, 0.5),});
+      Solid.attach(this.#world, {center: new Vec2(2.5, -1.5), r: new Vec2(0.5, 0.5),});
+      Solid.attach(this.#world, {center: new Vec2(12.5, -4.5), r: new Vec2(12.5, 0.5),});
       Solid.attach(this.#world, {center: new Vec2(-BORDER_WIDTH, 0), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT * 1000),});
       Solid.attach(this.#world, {center: new Vec2(CHUNK_WIDTH + BORDER_WIDTH, 0), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT * 1000),});
-      Player.attach(this.#world, new Vec2(14.5, 0.5));
+      Player.attach(this.#world, new Vec2(14.5, -0.5));
     }
     return this.#world;
   }

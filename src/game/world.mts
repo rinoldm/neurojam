@@ -20,10 +20,10 @@ export class World {
     this.entities = new Map<number, Entity>();
     this.nextId = 1;
     this.depthOrder = null;
-    this.camera = new Vec2(CHUNK_WIDTH / 2, CHUNK_HEIGHT / 2);
+    this.camera = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT / 2);
     this.#player = null;
     this.playerControl = {
-      down: false, jump: false, left: false, right: false, use: false,
+      down: null, jump: null, left: null, right: null, use: null,
     };
   }
 
@@ -58,9 +58,9 @@ export class World {
 
   public render(view: PlayView): void {
     const cx = view.context;
-    cx.transform(view.canvas.width / view.size.x, 0, 0, view.canvas.height / view.size.y, 0, 0);
+    cx.transform(view.canvas.width / view.size.x, 0, 0, -view.canvas.height / view.size.y, 0, 0);
     cx.translate(BORDER_WIDTH, 0);
-    const midPoint = new Vec2(CHUNK_WIDTH / 2, view.size.y / 2);
+    const midPoint = new Vec2(CHUNK_WIDTH / 2, -view.size.y / 2);
     const cameraOffset = midPoint.sub(this.camera);
     cx.translate(cameraOffset.x, cameraOffset.y);
 

@@ -32,16 +32,16 @@ export class Player extends Entity {
     } else if (world.playerControl.left) {
       dx = -0.06;
     }
-    let dy = 0.01;
+    let dy = -0.01;
     if (world.playerControl.jump) {
-      dy = -0.05;
+      dy = +0.05;
     }
     this.moveRelative(new Vec2(dx, dy));
     // console.log(this.pos);
   }
 
   render(view: PlayView): void {
-    view.context.drawImage(this.asset, 0, 0, this.asset.width, this.asset.height, this.hitbox.data.center.x - this.hitbox.data.r.x, this.hitbox.data.center.y - this.hitbox.data.r.y, this.hitbox.data.r.x * 2, this.hitbox.data.r.y * 2);
+    view.context.drawImage(this.asset, 0, 0, this.asset.width, this.asset.height, this.hitbox.data.center.x - this.hitbox.data.r.x, this.hitbox.data.center.y + this.hitbox.data.r.y, this.hitbox.data.r.x * 2, - this.hitbox.data.r.y * 2);
   }
 }
 
