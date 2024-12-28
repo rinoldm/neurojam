@@ -87,6 +87,11 @@ export class Vec2<T = number> {
     return this.x * other.y - other.x * this.y;
   }
 
+  /// scalar product
+  scalar(this: Vec2, other: Vec2): number {
+    return this.x * other.x + this.y * other.y;
+  }
+
   elemDiv(this: Vec2, other: Vec2): Vec2 {
     return new Vec2(this.x / other.x, this.y / other.y);
   }
@@ -123,6 +128,9 @@ export class Vec2<T = number> {
   static BOTTOM_RIGHT: Vec2 = new Vec2(1, -1);
 }
 
+/// Represents the matrix:
+/// (a c)
+/// (b d)
 export class Mat2<T = number> {
   readonly a: T;
   readonly b: T;
@@ -150,7 +158,7 @@ export class Mat2<T = number> {
       // parallel, we should check if it's aligned...
       return null;
     }
-    return new Mat2(this.d / det, -this.c / det, -this.b / det, this.a / det);
+    return new Mat2(this.d / det, -this.b / det, -this.c / det, this.a / det);
   }
 
   public vecMult(this: Mat2, right: Vec2): Vec2 {
@@ -158,7 +166,7 @@ export class Mat2<T = number> {
   }
 }
 
-/// What's the distance between `left` and `right` measured in `unit`
+/// Returns the distance to the first hit between `left` and `right` measured in `unit`
 /// - `0` means barely touching
 /// - a positive value means not touching (if the unit is pointing from `left` towards `right`)
 /// - a negative value means that there is a collision (if the unit is pointing from `left` towards `right`)
@@ -171,7 +179,18 @@ export function hitDistance(left: HitBox, right: HitBox, unit: Vec2): number | n
   }
 }
 
-/// Hit distance with a point approaching a rect
+/// Hit distance with a point approaching an other point
+export function hitDistancePointPoint(left: PointData, right: PointData, unit: Vec2): number | null {
+  const diff = right.center.sub(left.center);
+  const alignment = diff.cross(unit);
+  if (Math.abs(alignment) > EPSILON) {
+    // the points are not aligned, but we still double-check as they maybe overlap
+    return diff.len() < EPSILON ? 0 : null;
+  }
+  return diff.scalar(unit) / unit.len2();
+}
+
+/// Hit distance with a point approaching a segment
 export function hitDistancePointSegment(left: PointData, right: SegmentData, unit: Vec2): number | null {
   const mat = Mat2.colVec(unit, right.r.neg());
   const inv = mat.inv();
