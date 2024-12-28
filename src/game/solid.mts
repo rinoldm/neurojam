@@ -34,32 +34,21 @@ export class Solid extends Entity {
     this.updatedAt = tick;
     const player = world.player();
     const hit = this.hitbox.hitTest(player.hitbox);
+    console.log(hit);
     this.hasHit = hit !== null;
     if (hit === null) {
       return;
     }
 
-    const bottomLeft = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.BOTTOM_LEFT));
-    const bottomRight = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.BOTTOM_RIGHT));
-    const topLeft = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.TOP_LEFT));
-    const topRight = player.hitbox.data.center.add(player.hitbox.data.r.elemMult(Vec2.TOP_RIGHT));
-
-    const bottomLeftHit = hitTestRectPoint(this.hitbox.data, {center: bottomLeft}) !== null;
-    const bottomRightHit = hitTestRectPoint(this.hitbox.data, {center: bottomRight}) !== null;
-    const topLeftHit = hitTestRectPoint(this.hitbox.data, {center: topLeft}) !== null;
-    const topRightHit = hitTestRectPoint(this.hitbox.data, {center: topRight}) !== null;
-
     let dx = -hit.x;
-    if ((bottomLeftHit && bottomRightHit) || (topLeftHit && topRightHit)) {
-      dx = 0;
-    }
     let dy = -hit.y;
-    if ((bottomLeftHit && topLeftHit) || (bottomRightHit && topRightHit)) {
+    if (Math.abs(hit.x) < Math.abs(hit.y)) {
       dy = 0;
+    }
+    else {
+      dx = 0;
     }
 
     player.moveRelative(new Vec2(dx, dy));
-    // const dir = player.hitbox.data.center.sub(this.hitbox.data.center);
-
   }
 }

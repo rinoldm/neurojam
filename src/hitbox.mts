@@ -128,8 +128,8 @@ export function hitTestRectRect(a: RectData, b: RectData) : Vec2 | null {
     return null;
   } else {
     return new Vec2(
-      (delta.x < 0 ? -1 : 1) * hit.x,
-      (delta.y < 0 ? -1 : 1) * hit.y,
+      (delta.x < 0 ? -1 : 1) * (Math.abs(hit.x) < 1e-6 ? 0 : hit.x),
+      (delta.y < 0 ? -1 : 1) * (Math.abs(hit.y) < 1e-6 ? 0 : hit.y),
     )
   }
 }
