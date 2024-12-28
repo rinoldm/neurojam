@@ -1,9 +1,9 @@
 import {AssetLoader} from "./assets.mjs";
-import {BACKGROUND_MUSIC, GLOBAL_ASSET_LIST, PLAYER} from "./assets/index.mts";
-
-const TICK_RATE: number = 60;
-const TICK_DURATION_MS: number = 1000 / TICK_RATE;
-const TAU: number = Math.PI * 2;
+import {BACKGROUND_MUSIC, GLOBAL_ASSET_LIST} from "./assets/index.mts";
+import {World} from "./game/world.mts";
+import {Solid} from "./game/solid.mjs";
+import {Vec2} from "./hitbox.mts";
+import {TICK_DURATION_MS} from "./game/data.mjs";
 
 export interface State {
   globalState: GlobalState;
@@ -26,6 +26,7 @@ export class App {
   #menuView: null | MenuView;
   #playView: null | PlayView;
   #backgroundMusic: null | HTMLAudioElement;
+  #world: null | World;
 
   constructor(root: HTMLDivElement, startTime: DOMHighResTimeStamp) {
     this.#root = root;
@@ -42,6 +43,7 @@ export class App {
     this.#menuView = null;
     this.#playView = null;
     this.#backgroundMusic = null;
+    this.#world = null;
   }
 
   static start(root: HTMLDivElement): App {
@@ -122,7 +124,7 @@ export class App {
           const audio = this.#assets.getAudio(BACKGROUND_MUSIC);
           this.#backgroundMusic = audio;
           audio.loop = true;
-          audio.play();
+          // audio.play();
         }
         // Nothing to do beyond `syncActiveView`
         break;
@@ -131,20 +133,21 @@ export class App {
         const view: PlayView = this.playView();
         const cx: CanvasRenderingContext2D = view.context;
         cx.resetTransform();
-        cx.fillStyle = "rgba(0, 0, 0, 0.1)";
-        cx.fillRect(0, 0, view.canvas.width, view.canvas.height);
-        // cx.clearRect(0, 0, view.canvas.width, view.canvas.height);
-        cx.transform(view.canvas.width / 25, 0, 0, view.canvas.height / 29, 0, 0);
-        cx.fillStyle = "red";
-        cx.fillRect(0, 0, 1, 1);
-        const player = this.#assets.getImage(PLAYER);
-        const pWidth = 1.5;
-        const pHeight = 1.75;
-        const availableX = 25 - pWidth;
-        const availableY = 29 - pHeight;
-        const posX = availableX * (0.5 + 0.5 * Math.sin(this.#tickCount / 800 * TAU));
-        const posY = availableY * (0.5 + 0.5 * Math.sin(this.#tickCount / 1000 * TAU));
-        cx.drawImage(player, 0, 0, player.width, player.height, posX, posY, pWidth, pHeight);
+        cx.clearRect(0, 0, view.canvas.width, view.canvas.height);
+        this.world().render(view);
+        // cx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        // cx.fillRect(0, 0, view.canvas.width, view.canvas.height);
+        // cx.transform(view.canvas.width / 25, 0, 0, view.canvas.height / 29, 0, 0);
+        // cx.fillStyle = "red";
+        // cx.fillRect(0, 0, 1, 1);
+        // const player = this.#assets.getImage(PLAYER);
+        // const pWidth = 1.5;
+        // const pHeight = 1.75;
+        // const availableX = 25 - pWidth;
+        // const availableY = 29 - pHeight;
+        // const posX = availableX * (0.5 + 0.5 * Math.sin(this.#tickCount / 800 * TAU));
+        // const posY = availableY * (0.5 + 0.5 * Math.sin(this.#tickCount / 1000 * TAU));
+        // cx.drawImage(player, 0, 0, player.width, player.height, posX, posY, pWidth, pHeight);
         break;
       }
     }
@@ -237,6 +240,15 @@ export class App {
     }
     return this.#playView;
   }
+
+  public world(): World {
+    if (this.#world === null) {
+      this.#world = new World(this.#assets);
+      Solid.attach(this.#world, {center: new Vec2(1.5, 1.5), r: new Vec2(0.5, 0.5),});
+      Solid.attach(this.#world, {center: new Vec2(2.5, 1.5), r: new Vec2(0.5, 0.5),});
+    }
+    return this.#world;
+  }
 }
 
 interface LoadView {
@@ -253,8 +265,7 @@ interface MenuView {
   labelText: Text;
 }
 
-
-interface PlayView {
+export interface PlayView {
   container: HTMLDivElement;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;

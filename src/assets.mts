@@ -10,26 +10,38 @@ export interface ImageAssetRef {
   url: any;
 }
 
-export type AssetRef = AudioAssetRef | ImageAssetRef;
+export interface LevelAssetRef {
+  type: "Level";
+  url: any;
+}
+
+export type AssetRef = AudioAssetRef | ImageAssetRef | LevelAssetRef;
 
 export class AssetList {
-  #audio: Set<AssetRef>;
-  #image: Set<AssetRef>;
+  #audio: Set<AudioAssetRef>;
+  #image: Set<ImageAssetRef>;
+  #level: Set<LevelAssetRef>;
 
   constructor() {
     this.#audio = new Set();
     this.#image = new Set();
+    this.#level = new Set();
   }
 
-  audioIter(): IterableIterator<AssetRef> {
+  public audioIter(): IterableIterator<AssetRef> {
     return this.#audio[Symbol.iterator]();
   }
 
-  imageIter(): IterableIterator<AssetRef> {
+  public imageIter(): IterableIterator<AssetRef> {
     return this.#image[Symbol.iterator]();
   }
 
+  public levelIter(): IterableIterator<AssetRef> {
+    return this.#level[Symbol.iterator]();
+  }
+
   public registerAudio(url: any): AudioAssetRef {
+    console.log(typeof url);
     const ref: AssetRef = {type: "Audio", url};
     this.#audio.add(ref);
     return ref;
@@ -38,6 +50,12 @@ export class AssetList {
   public registerImage(url: any): ImageAssetRef {
     const ref: AssetRef = {type: "Image", url};
     this.#image.add(ref);
+    return ref;
+  }
+
+  public registerLevel(url: any): LevelAssetRef {
+    const ref: AssetRef = {type: "Level", url};
+    this.#level.add(ref);
     return ref;
   }
 }
