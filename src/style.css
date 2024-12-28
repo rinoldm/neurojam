@@ -7,6 +7,7 @@
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
   font-size: 100px;
+  user-select: none;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -81,6 +82,10 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+canvas {
+  background-color: black;
 }
 
 @media (prefers-color-scheme: light) {
