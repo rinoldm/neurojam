@@ -1,24 +1,16 @@
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import {App} from "./app.mjs";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+const DOM_CONTENT_LOADED_EVENT = "DOMContentLoaded";
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+function main() {
+  document.removeEventListener(DOM_CONTENT_LOADED_EVENT, main);
+  const root: HTMLDivElement = document.querySelector<HTMLDivElement>('#app')!;
+  App.start(root);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener(DOM_CONTENT_LOADED_EVENT, main);
+} else {
+  main();
+}
