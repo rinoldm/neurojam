@@ -49,6 +49,14 @@ export class Vec2<T = number> {
     return new Vec2(this.x - other.x, this.y - other.y);
   }
 
+  scalarMult(this: Vec2, other: number): Vec2 {
+    return new Vec2(this.x * other, this.y * other);
+  }
+
+  elemDiv(this: Vec2, other: Vec2): Vec2 {
+    return new Vec2(this.x / other.x, this.y / other.y);
+  }
+
   min(this: Vec2, other: Vec2): Vec2 {
     return new Vec2(Math.min(this.x, other.x), Math.min(this.y, other.y));
   }

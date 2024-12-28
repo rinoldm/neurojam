@@ -3,7 +3,13 @@ import {BACKGROUND_MUSIC, GLOBAL_ASSET_LIST} from "./assets/index.mts";
 import {World} from "./game/world.mts";
 import {Solid} from "./game/solid.mjs";
 import {Vec2} from "./hitbox.mts";
-import {TICK_DURATION_MS} from "./game/data.mjs";
+import {
+  MAX_VIEWPORT_HEIGHT,
+  MIN_VIEWPORT_HEIGHT,
+  BASE_CELL_PX,
+  TICK_DURATION_MS,
+  VIEW_WIDTH
+} from "./game/data.mjs";
 
 export interface State {
   globalState: GlobalState;
@@ -131,23 +137,31 @@ export class App {
       }
       case "Play": {
         const view: PlayView = this.playView();
+        const minSize = new Vec2(VIEW_WIDTH * BASE_CELL_PX, MIN_VIEWPORT_HEIGHT * BASE_CELL_PX);
+        const root: HTMLElement = document.documentElement
+        const appSize = new Vec2(root.clientWidth, root.clientHeight);
+        const availableSize = minSize.max(appSize);
+        const scale2 = availableSize.elemDiv(minSize);
+        const scale = Math.floor(Math.max(Math.min(scale2.x, scale2.y), 1));
+        let size = minSize.scalarMult(scale);
+
+        // extra row logic: comment out to skip
+        const allowedExtraRows = MAX_VIEWPORT_HEIGHT - MIN_VIEWPORT_HEIGHT;
+        const availableExtraRows = Math.floor((availableSize.y - size.y) / scale / BASE_CELL_PX);
+        const extraRows = Math.min(Math.max(availableExtraRows, 0), allowedExtraRows);
+        size = new Vec2(size.x, size.y + extraRows * scale * BASE_CELL_PX);
+        const pxRatio = window.devicePixelRatio;
+        view.scale = scale;
+        view.canvasScale = new Vec2(scale * pxRatio, scale * pxRatio);
+
+        view.canvas.style.width = `${size.x}px`;
+        view.canvas.style.height = `${size.y}px`;
+        view.canvas.width = size.x * pxRatio;
+        view.canvas.height = size.y * pxRatio;
         const cx: CanvasRenderingContext2D = view.context;
         cx.resetTransform();
         cx.clearRect(0, 0, view.canvas.width, view.canvas.height);
         this.world().render(view);
-        // cx.fillStyle = "rgba(0, 0, 0, 0.1)";
-        // cx.fillRect(0, 0, view.canvas.width, view.canvas.height);
-        // cx.transform(view.canvas.width / 25, 0, 0, view.canvas.height / 29, 0, 0);
-        // cx.fillStyle = "red";
-        // cx.fillRect(0, 0, 1, 1);
-        // const player = this.#assets.getImage(PLAYER);
-        // const pWidth = 1.5;
-        // const pHeight = 1.75;
-        // const availableX = 25 - pWidth;
-        // const availableY = 29 - pHeight;
-        // const posX = availableX * (0.5 + 0.5 * Math.sin(this.#tickCount / 800 * TAU));
-        // const posY = availableY * (0.5 + 0.5 * Math.sin(this.#tickCount / 1000 * TAU));
-        // cx.drawImage(player, 0, 0, player.width, player.height, posX, posY, pWidth, pHeight);
         break;
       }
     }
@@ -224,8 +238,8 @@ export class App {
     if (this.#playView === null) {
       const container = document.createElement("div");
       const canvas = document.createElement("canvas");
-      canvas.width = 800;
-      canvas.height = 928;
+      canvas.width = VIEW_WIDTH * BASE_CELL_PX;
+      canvas.height = MIN_VIEWPORT_HEIGHT * BASE_CELL_PX;
       const context: CanvasRenderingContext2D = canvas.getContext("2d")!;
 
       container.appendChild(canvas);
@@ -235,6 +249,8 @@ export class App {
         container,
         canvas,
         context,
+        scale: 1,
+        canvasScale: new Vec2(1, 1),
       };
       this.#playView = view;
     }
@@ -269,4 +285,6 @@ export interface PlayView {
   container: HTMLDivElement;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
+  scale: number;
+  canvasScale: Vec2;
 }

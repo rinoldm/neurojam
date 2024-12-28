@@ -9,23 +9,21 @@
   font-size: 100px;
   user-select: none;
 
+  box-sizing: border-box;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 body {
   margin: 0;
+  padding: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
@@ -38,9 +36,8 @@ h1 {
 }
 
 #app {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
 }
 
@@ -85,5 +82,8 @@ button:focus-visible {
 }
 
 canvas {
+  margin: 0;
+  padding: 0;
   background-color: black;
+  display: block;
 }
