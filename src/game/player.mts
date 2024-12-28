@@ -1,17 +1,20 @@
 import {PlayView} from "../app.mts";
-import {HitBox, RectData, RectHitBox, Vec2} from "../hitbox.mjs";
+import {RectData, RectHitBox, Vec2} from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
 import {PLAYER} from "../assets/index.mjs";
 
 export class Player extends Entity {
-  declare public hitbox: HitBox<RectHitBox>;
+  worldHitbox(): RectHitBox {
+    return super.worldHitbox() as any;
+  }
+
   asset: HTMLImageElement;
   onGround: Boolean;
 
   private constructor(id: number, asset: HTMLImageElement, rect: RectData) {
-    super(id, HITBOX_DEPTH, new HitBox({type: "Rect", ...rect}))
+    super(id, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
     this.asset = asset;
     this.onGround = true;
   }
@@ -46,7 +49,8 @@ export class Player extends Entity {
   render(view: PlayView): void {
     // view.context.drawImage(this.asset, 0, 0, this.asset.width, this.asset.height, this.hitbox.data.center.x - this.hitbox.data.r.x, this.hitbox.data.center.y + this.hitbox.data.r.y, this.hitbox.data.r.x * 2, - this.hitbox.data.r.y * 2);
     view.context.fillStyle = "red";
-    view.context.fillRect(this.hitbox.data.center.x - this.hitbox.data.r.x, this.hitbox.data.center.y + this.hitbox.data.r.y, this.hitbox.data.r.x * 2, - this.hitbox.data.r.y * 2);
+    const hb = this.worldHitbox();
+    view.context.fillRect(hb.center.x - hb.r.x, hb.center.y + hb.r.y, hb.r.x * 2, - hb.r.y * 2);
   }
 }
 
