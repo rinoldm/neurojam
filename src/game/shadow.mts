@@ -47,6 +47,15 @@ export class Shadow extends Entity {
     const t = cx.getTransform();
     acx.setTransform(t);
 
+    acx.fillStyle = "rgb(128,128,128)";
+    for (const ls of this.#lightSources) {
+      acx.beginPath();
+      acx.moveTo(ls.center.x, ls.center.y + ls.r + 1);
+      acx.arc(ls.center.x, ls.center.y, ls.r + 1, 0, TAU);
+      acx.closePath();
+      acx.fill();
+    }
+
     acx.fillStyle = "white";
     for (const ls of this.#lightSources) {
       acx.beginPath();
