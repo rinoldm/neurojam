@@ -101,6 +101,10 @@ export class App {
   }
 
   public onInput(ev: UIEvent) {
+    if (ev.type === "keydown" && (ev as KeyboardEvent).key === "m") {
+      this.#toggleMusic();
+    }
+
     switch (this.#state.globalState) {
       case "Load": {
         const progress = this.#assets.progress();
@@ -239,10 +243,21 @@ export class App {
           const audio = this.#assets.getAudio(MUS_MAIN);
           this.#backgroundMusic = audio;
           audio.loop = true;
-          audio.play();
+          // audio.play();
         }
         break;
       }
+    }
+  }
+
+  #toggleMusic(): void {
+    if (this.#backgroundMusic === null) {
+      return;
+    }
+    if (this.#backgroundMusic.paused) {
+      this.#backgroundMusic.play();
+    } else {
+      this.#backgroundMusic.pause();
     }
   }
 
