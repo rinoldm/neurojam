@@ -5,7 +5,7 @@ import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT} from "./da
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
-import {LVL_000, LVL_PROTOTYPE4} from "../assets/index.mjs";
+import {LVL_000, LVL_PROTOTYPE1, LVL_PROTOTYPE2, LVL_PROTOTYPE3, LVL_PROTOTYPE4} from "../assets/index.mjs";
 import { Level } from "../level.mts";
 import {Shadow} from "./shadow.mjs";
 
@@ -68,7 +68,11 @@ export class World {
       entity.update?.(this, tick);
     }
 
-    this.camera = new Vec2(CHUNK_WIDTH / 2, this.player().pos.y);
+    const curChunkCamera = this.posToChunkId(this.camera);
+    const curChunkPlayer = this.posToChunkId(this.#player.pos);
+    if ((this.#player?.pos?.y ?? 0) % CHUNK_HEIGHT <= -(CHUNK_HEIGHT - 0.5) && curChunkCamera == curChunkPlayer) {
+      this.camera = new Vec2(CHUNK_WIDTH / 2, this.camera.y - CHUNK_HEIGHT);
+    }
   }
 
   public render(view: PlayView): void {
@@ -183,7 +187,7 @@ export class World {
         case "Enemy2":
         case "Enemy3":
           break;
-          
+
         default: {
           throw new Error(`Unexpected object class ${obj.class}`)
         }
