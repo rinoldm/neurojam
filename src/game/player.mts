@@ -33,7 +33,11 @@ export class Player extends Entity {
   touchWall: boolean;
 
   dir: number;
-  cur_anim_id: number;
+  curAnimId: number;
+  curAnimFrameId: number;
+
+  totalHP: number;
+  currentHP: number;
 
   private constructor(id: number, spr_body: HTMLImageElement, spr_arms: HTMLImageElement, pos: Vec2, rect: RectData) {
     super(id, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
@@ -48,7 +52,10 @@ export class Player extends Entity {
     this.touchWall = false;
     this.pos = pos;
     this.dir = 1;
-    this.cur_anim_id = 0;
+    this.curAnimId = 0;
+    this.curAnimFrameId = 0;
+    this.totalHP = 3;
+    this.currentHP = this.totalHP;
   }
 
   static attach(world: World, pos: Vec2): Player {
@@ -161,11 +168,17 @@ export class Player extends Entity {
 
     this.commitPhysics();
 
-    if (this.vel.x == 0 && this.vel.y == 0) {
-      this.cur_anim_id = 0;
+    if (this.vel.x == 0 && this.vel.y == 0) { // stopped on ground
+      this.curAnimId = 0;
+      this.curAnimFrameId = 0;
     }
-    else if (Math.abs(this.vel.x) > 0 && this.vel.y == 0) {
-      this.cur_anim_id = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
+    else if (Math.abs(this.vel.x) > 0 && this.vel.y == 0) { // walking on ground
+      this.curAnimId = 0;
+      this.curAnimFrameId = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
+    }
+    else if (Math.abs(this.vel.y) > 0) { // in the air
+      // this.curAnimId = 1;
+      this.curAnimFrameId = 1;
     }
   }
 
@@ -178,7 +191,7 @@ export class Player extends Entity {
     view.context.save();
     view.context.translate(hb.center.x, hb.center.y);
     view.context.scale(-this.dir, -1);
-    view.context.drawImage(this.spr_body, 0 + this.cur_anim_id * 256, 0, 256 /* sprite width */, 256 /* sprite height */, -1, 1 + 1/16, 2, -2);
+    view.context.drawImage(this.spr_body, this.curAnimFrameId * 256, this.curAnimId * 256, 256 /* sprite width */, 256 /* sprite height */, -1, 1 + 1/16, 2, -2);
     view.context.restore();
   }
 }
