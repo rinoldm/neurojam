@@ -72,10 +72,6 @@ export class Player extends Entity {
 
     this.storeOldPhysics();
 
-    this.touchGround = false;
-    this.touchCeiling = false;
-    this.touchWall = false;
-
     this.newAcc = new Vec2(0, -GRAVITY); // todo: check water, etc.
     this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
     if (world.playerControl.jump && this.oldTouchGround) {

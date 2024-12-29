@@ -34,6 +34,8 @@ export class Shadow extends Entity {
   }
 
   render(view: PlayView): void {
+    return;
+
     if (this.#alphaCanvas.width !== view.canvas.width || this.#alphaCanvas.height !== view.canvas.height) {
       this.#alphaCanvas.width = view.canvas.width;
       this.#alphaCanvas.height = view.canvas.height;

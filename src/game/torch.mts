@@ -8,6 +8,7 @@ import type {World} from "./world.mts";
 import {TORCH_DEPTH} from "./depth.mjs";
 import {
   GRAVITY,
+  JUMP_DY,
   MAX_HORIZONTAL_SPEED,
   MAX_TORCHES_HELD,
   TAU,
@@ -21,6 +22,7 @@ import {
   TORCH_MIN_POWER_SPEED
 } from "./data.mjs";
 import type {Player} from "./player.mjs";
+import {TAG_TORCH} from "./tag.mjs";
 
 const GRAB_HITBOX: CircleHitBox = {type: "Circle", center: Vec2.ZERO, r: TORCH_GRAB_RADIUS};
 
@@ -60,6 +62,8 @@ export class Torch extends Entity {
     this.heldAnimationStartAt = null;
     this.hideMainTorch = false;
     this.lastThrowAt = null;
+    this.tags.add(TAG_TORCH);
+    this.lateralBounce = 0;
   }
 
   static attach(world: World, pos: Vec2): Torch {
@@ -111,11 +115,13 @@ export class Torch extends Entity {
         // this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
       }
     } else {
-
       this.hideMainTorch = false;
       this.physics = true;
       this.newAcc = new Vec2(0, -GRAVITY); // todo: check water, etc.
       this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
+      if (world.playerControl.jump && this.oldTouchGround) {
+        this.newVel = new Vec2(this.newVel.x, JUMP_DY);
+      }
       if (!this.canBeGrabbed) {
         // console.log(this.newVel.x, this.newVel.y);
       }

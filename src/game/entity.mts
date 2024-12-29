@@ -75,8 +75,7 @@ export class Entity {
   public newAcc: Vec2;
   public newRotationSpeed: number;
   public newAngle: number;
-
-
+  public lateralBounce: number;
 
   constructor(id: number, chunkId: number | null, depth: number, hitbox?: HitBox) {
     this.id = id;
@@ -111,6 +110,7 @@ export class Entity {
     this.touchGround = false;
     this.touchCeiling = false;
     this.touchWall = false;
+    this.lateralBounce = 0;
   }
 
   update?(world: World, tick: number): void;
@@ -157,14 +157,18 @@ export class Entity {
   }
 
   public doPhysics(world: World, tick: number): void {
+    this.touchGround = false;
+    this.touchCeiling = false;
+    this.touchWall = false;
+
     if (this.physics) {
       const closeEnts = world.getCloseEntities(this.pos);
       while (this.energy > 0) {
-        let usedEnergy = Math.max(this.energy, 0.1);
+        let usedEnergy = Math.min(this.energy, 0.1);
         const oldHitBox = moveHitbox(this.hitbox!, this.pos) as CircleHitBox;
 
         if (this.touchWall) {
-          this.newVel = new Vec2(0, this.newVel.y);
+          this.newVel = this.newVel.elemMult(new Vec2(this.lateralBounce, 1));
         }
         if (this.touchGround || this.touchCeiling) {
           this.newVel = new Vec2(this.newVel.x, 0);

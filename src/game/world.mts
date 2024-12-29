@@ -170,8 +170,8 @@ export class World {
       this.#player = Player.attach(this, new Vec2(4.5, 2.5));
       Shadow.attach(this);
       Torch.attach(this, new Vec2(16.5, 2.5));
-      Torch.attach(this, new Vec2(14.5, 2.5));
-      Torch.attach(this, new Vec2(12.5, 2.5));
+      // Torch.attach(this, new Vec2(14.5, 2.5));
+      // Torch.attach(this, new Vec2(12.5, 2.5));
     }
 
     if (chunk.applied) {
