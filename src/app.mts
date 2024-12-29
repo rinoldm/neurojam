@@ -9,7 +9,6 @@ import {
   TICK_DURATION_MS,
   VIEW_WIDTH,
 } from "./game/data.mjs";
-import { Player } from "./game/player.mts";
 
 export interface State {
   globalState: GlobalState;
@@ -334,7 +333,6 @@ export class App {
   public world(): World {
     if (this.#world === null) {
       this.#world = new World(this.#assets);
-      Player.attach(this.#world, new Vec2(14.5, 2.5));
     }
     return this.#world;
   }

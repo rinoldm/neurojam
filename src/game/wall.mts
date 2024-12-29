@@ -5,8 +5,6 @@ import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
 
-export type RelativePos = "Above" | "Below" | "Side";
-
 export class Wall extends Entity {
   worldHitbox(): RectHitBox {
     return super.worldHitbox() as any;

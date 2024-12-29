@@ -17,3 +17,4 @@ export const JUMP_PEAK_HEIGHT = 4.7;
 export const JUMP_PEAK_DURATION = 0.8;
 export const GRAVITY = 2 * JUMP_PEAK_HEIGHT / (JUMP_PEAK_DURATION * JUMP_PEAK_DURATION);
 export const JUMP_DY = 2 * JUMP_PEAK_HEIGHT / JUMP_PEAK_DURATION;
+export const TAU = Math.PI * 2;

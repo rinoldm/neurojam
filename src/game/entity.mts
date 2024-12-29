@@ -1,4 +1,4 @@
-import {HitBox, moveHitbox, Vec2} from "../hitbox.mjs";
+import {CircleHitBox, HitBox, moveHitbox, Vec2} from "../hitbox.mjs";
 import type {PlayView} from "../app.mjs";
 import type {World} from "./world.mjs";
 import { Sprite } from "../sprite.mts";
@@ -16,6 +16,8 @@ export class Entity {
   // cached hitbox in world coords (key and value)
   #worldHitboxPos?: Vec2;
   #worldHitbox?: HitBox;
+
+  public lightSources: CircleHitBox[];
 
   /// Sprite for rendering, in entity coords
   public sprite?: Sprite;
@@ -59,6 +61,7 @@ export class Entity {
     this.depth = depth;
     this.hitbox = hitbox;
     this.physics = hitbox !== undefined;
+    this.lightSources = [];
     this.chunkId = null;
     this.updatedAt = 0;
     this.isAttached = true;

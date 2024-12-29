@@ -7,6 +7,7 @@ import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
 import {LEVEL000} from "../assets/index.mjs";
 import { Level } from "../level.mts";
+import {Shadow} from "./shadow.mjs";
 
 interface Chunk {
   id: number;
@@ -23,6 +24,7 @@ export class World {
   depthOrder: null | Entity[];
   camera: Vec2;
   #player: null | Player;
+  #shadow: null | Shadow;
   playerControl: PlayerControl;
   chunks: Chunk[];
   viewHeight: number;
@@ -35,6 +37,7 @@ export class World {
     this.depthOrder = null;
     this.camera = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT / 2);
     this.#player = null;
+    this.#shadow = null;
     this.playerControl = {
       down: null, jump: null, left: null, right: null, use: null,
     };
@@ -62,15 +65,9 @@ export class World {
     this.genChunks();
 
     for (const entity of this.entities.values()) {
-      if (entity instanceof Player) {
-        entity.update(this, tick);
-      }
+      entity.update?.(this, tick);
     }
-    for (const entity of this.entities.values()) {
-      if (entity instanceof Wall) {
-        entity.update(this, tick);
-      }
-    }
+
     this.camera = new Vec2(CHUNK_WIDTH / 2, this.player().pos.y);
   }
 
@@ -88,6 +85,20 @@ export class World {
       entities.sort((a, b) => a.depth === b.depth ? a.id - b.id : a.depth - b.depth);
       this.depthOrder = entities;
     }
+
+    const curChunk = this.posToChunkId(this.camera);
+    for (let cid = curChunk - 2; cid < curChunk + 3; cid++) {
+      const top = -cid * CHUNK_HEIGHT;
+      // const bottom = top - CHUNK_HEIGHT;
+      const left = -BORDER_WIDTH;
+      const right = CHUNK_WIDTH + BORDER_WIDTH;
+      const grad = cx.createLinearGradient(0, 0, 0, -CHUNK_HEIGHT);
+      grad.addColorStop(0, "orange");
+      grad.addColorStop(1, "blue");
+      cx.fillStyle = grad;
+      cx.fillRect(left, top, right - left, CHUNK_HEIGHT);
+    }
+
     for (const entity of this.depthOrder) {
       entity.render?.(view);
     }
@@ -112,19 +123,30 @@ export class World {
     }
   }
 
-  public getCloseEntities(pos: Vec2): Entity[] {
+  public getCloseEntities(pos: Vec2, range: number = 1): Entity[] {
     const res: Entity[] = [];
     const chunkId = this.posToChunkId(pos);
-    for (let cid = chunkId - 1; cid < chunkId + 2; cid++) {
+    for (let cid = chunkId - range; cid < chunkId + 1 + range; cid++) {
       const ents = this.entitiesByChunk.get(cid);
       if (ents !== undefined) {
         res.push(...ents);
       }
     }
+    if (this.#player !== null) {
+      res.push(this.#player);
+    }
+    if (this.#shadow !== null) {
+      res.push(this.#shadow);
+    }
     return res;
   }
 
   public applyChunk(chunk: Chunk) {
+    if (chunk.id === 0) {
+      this.#player = Player.attach(this, new Vec2(14.5, 2.5));
+      this.#shadow = Shadow.attach(this);
+    }
+
     if (chunk.applied) {
       return;
     }
