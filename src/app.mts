@@ -1,5 +1,5 @@
 import {AssetLoader} from "./assets.mjs";
-import {BACKGROUND_MUSIC, GLOBAL_ASSET_LIST} from "./assets/index.mts";
+import {MUS_MAIN, GLOBAL_ASSET_LIST} from "./assets/index.mts";
 import {World} from "./game/world.mts";
 import {Vec2} from "./hitbox.mts";
 import {
@@ -197,12 +197,6 @@ export class App {
         const hue = (elapsedTimeMs / 1000 * 60) % 360;
         this.#root.style.color = `hsl(${hue}, 100%, 50%)`;
 
-        if (this.#backgroundMusic === null) {
-          const audio = this.#assets.getAudio(BACKGROUND_MUSIC);
-          this.#backgroundMusic = audio;
-          audio.loop = true;
-          // audio.play();
-        }
         // Nothing to do beyond `syncActiveView`
         break;
       }
@@ -234,6 +228,13 @@ export class App {
         cx.resetTransform();
         cx.clearRect(0, 0, view.canvas.width, view.canvas.height);
         this.world().render(view);
+
+        if (this.#backgroundMusic === null) {
+          const audio = this.#assets.getAudio(MUS_MAIN);
+          this.#backgroundMusic = audio;
+          audio.loop = true;
+          audio.play();
+        }
         break;
       }
     }

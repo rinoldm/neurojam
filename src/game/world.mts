@@ -5,7 +5,7 @@ import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT} from "./da
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
-import {LEVEL000} from "../assets/index.mjs";
+import {LVL_000} from "../assets/index.mjs";
 import { Level } from "../level.mts";
 import {Shadow} from "./shadow.mjs";
 
@@ -114,7 +114,7 @@ export class World {
     while(this.chunks.length < neededChunks) {
       const chunk: Chunk = {
         id: this.chunks.length,
-        asset: LEVEL000,
+        asset: LVL_000,
         flipped: true,
         applied: false,
       };

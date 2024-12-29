@@ -12,7 +12,7 @@ import {
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
-import {PLAYER, SPR_NEURO_BODY} from "../assets/index.mjs";
+import {SPR_NEURO_BODY} from "../assets/index.mjs";
 import {GRAVITY, JUMP_DY, MAX_HORIZONTAL_SPEED, TICK_DURATION_S, PLAYER_HITBOX_HEIGHT, PLAYER_HITBOX_WIDTH} from "./data.mjs";
 import {Wall} from "./wall.mts";
 
@@ -172,8 +172,8 @@ export class Player extends Entity {
   render(view: PlayView): void {
     const hb = this.worldHitbox();
 
-    view.context.fillStyle = "red";
-    view.context.fillRect(hb.center.x - hb.r.x, hb.center.y + hb.r.y, hb.r.x * 2, -hb.r.y * 2);
+    // view.context.fillStyle = "red";
+    // view.context.fillRect(hb.center.x - hb.r.x, hb.center.y + hb.r.y, hb.r.x * 2, -hb.r.y * 2);
 
     view.context.save();
     view.context.translate(hb.center.x, hb.center.y);
