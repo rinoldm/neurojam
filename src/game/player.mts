@@ -38,6 +38,7 @@ export class Player extends Entity {
   totalHP: number;
   currentHP: number;
   torches: number[];
+  hasTorch: boolean;
   loadUseSince: number | null;
 
   private constructor(id: number, spr_body: HTMLImageElement, spr_arms: HTMLImageElement, pos: Vec2, rect: RectData) {
@@ -53,6 +54,7 @@ export class Player extends Entity {
     this.totalHP = 3;
     this.currentHP = this.totalHP;
     this.torches = [];
+    this.hasTorch = false;
     this.loadUseSince = null;
   }
 
@@ -99,6 +101,14 @@ export class Player extends Entity {
       }
     }
 
+    if (this.torches.length > 0) {
+      const mainTorchId = this.torches[0];
+      const mainTorch = world.entities.get(mainTorchId)! as Torch;
+      this.hasTorch = mainTorch.heldByPlayer && mainTorch.heldAnimationStartAt === null;
+    } else {
+      this.hasTorch = false;
+    }
+
     if (world.playerControl.use) {
       if (this.loadUseSince === null) {
         this.loadUseSince = tick;
@@ -120,7 +130,7 @@ export class Player extends Entity {
     if (this.vel.x == 0 && this.vel.y == 0) { // stopped on ground
       this.curAnimId = 0;
       this.curAnimFrameId = 0;
-      if (this.torches.length == 0) { // TODO flag
+      if (!this.hasTorch) {
         this.curAnimArmsId = 0;
       }
       else {
@@ -131,7 +141,7 @@ export class Player extends Entity {
     else if (Math.abs(this.vel.x) > 0 && this.vel.y == 0) { // walking on ground
       this.curAnimId = 0;
       this.curAnimFrameId = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
-      if (this.torches.length == 0) { // TODO flag
+      if (!this.hasTorch) {
         this.curAnimArmsId = 0;
       }
       else {
