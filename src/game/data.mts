@@ -10,7 +10,9 @@ export const MAX_VIEWPORT_HEIGHT: number = 64;
 // the final scale will be a multiple of this value (in css virtual pixels)
 export const BASE_CELL_PX: number = 8;
 // case/second
-export const MAX_HORIZONTAL_SPEED = 7;
+export const PLAYER_HITBOX_WIDTH: number = 1.15;
+export const PLAYER_HITBOX_HEIGHT: number = 1.875;
+export const MAX_HORIZONTAL_SPEED = 5;
 export const MAX_FALL_SPEED = 20;
 export const MAX_JUMP_SPEED = 20;
 export const JUMP_PEAK_HEIGHT = 4.7;

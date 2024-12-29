@@ -13,7 +13,7 @@ import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
 import {PLAYER, SPR_NEURO_BODY} from "../assets/index.mjs";
-import {GRAVITY, JUMP_DY, MAX_HORIZONTAL_SPEED, TICK_DURATION_S} from "./data.mjs";
+import {GRAVITY, JUMP_DY, MAX_HORIZONTAL_SPEED, TICK_DURATION_S, PLAYER_HITBOX_HEIGHT, PLAYER_HITBOX_WIDTH} from "./data.mjs";
 import {Wall} from "./wall.mts";
 
 export class Player extends Entity {
@@ -39,7 +39,7 @@ export class Player extends Entity {
     super(id, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
     this.spr_body = spr_body;
     this.spr_arms = spr_arms;
-    this.lightSources.push({type: "Circle", center: new Vec2(1.5/2, 1.875/2), r: 15} satisfies CircleHitBox);
+    this.lightSources.push({type: "Circle", center: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2), r: 15} satisfies CircleHitBox);
     this.oldTouchGround = false;
     this.oldTouchCeiling = false;
     this.oldTouchWall = false;
@@ -55,7 +55,7 @@ export class Player extends Entity {
     const spr_body = world.assets.getImage(SPR_NEURO_BODY);
     const spr_arms = world.assets.getImage(SPR_NEURO_BODY); // TODO change to SPR_NEURO_ARMS
 
-    return world.register(id => new Player(id, spr_body, spr_arms, pos, {center: new Vec2(1.5/2, 1.875/2), r: new Vec2(1.5 / 2, 1.875 / 2)}));
+    return world.register(id => new Player(id, spr_body, spr_arms, pos, {center: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2), r: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2)}));
   }
 
   update(world: World, tick: number): void {
@@ -178,7 +178,7 @@ export class Player extends Entity {
     view.context.save();
     view.context.translate(hb.center.x, hb.center.y);
     view.context.scale(-this.dir, -1);
-    view.context.drawImage(this.spr_body, 0 + this.cur_anim_id * 256, 0, 256 /* sprite width */, 256 /* sprite height */, -hb.r.x, hb.r.y, hb.r.x * 2, - hb.r.y * 2);
+    view.context.drawImage(this.spr_body, 0 + this.cur_anim_id * 256, 0, 256 /* sprite width */, 256 /* sprite height */, -1, 1 + 1/16, 2, -2);
     view.context.restore();
   }
 }
