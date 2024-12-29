@@ -49,6 +49,10 @@ export interface PointHitBox extends PointData {
 
 export type HitBox = CircleHitBox | PointHitBox | RectHitBox | SegmentHitBox;
 
+export interface HitRectSide {
+  side?: "Top" | "Bottom" | "Left" | "Right";
+}
+
 export class Vec2<T = number> {
   readonly x: T;
   readonly y: T;
@@ -102,6 +106,11 @@ export class Vec2<T = number> {
 
   max(this: Vec2, other: Vec2): Vec2 {
     return new Vec2(Math.max(this.x, other.x), Math.max(this.y, other.y));
+  }
+
+  clampAbs(this: Vec2, other: Vec2): Vec2 {
+    const abs = other.abs();
+    return this.min(abs).max(abs.neg());
   }
 
   abs(this: Vec2): Vec2 {
@@ -201,7 +210,7 @@ export function hitDistancePointSegment(left: PointData, right: SegmentData, uni
   const doubleDist = inv.vecMult(right.center.sub(left.center));
   const dist = doubleDist.x;
   const segmentRadiusDist = doubleDist.y;
-  if (Math.abs(segmentRadiusDist) <= 1) {
+  if (Math.abs(segmentRadiusDist) < 1) {
     return dist;
   } else {
     // intersection beyond the radius of the segment
@@ -210,7 +219,7 @@ export function hitDistancePointSegment(left: PointData, right: SegmentData, uni
 }
 
 /// Hit distance with a point approaching a rectangle
-export function hitDistancePointRect(left: PointData, right: RectData, unit: Vec2): number | null {
+export function hitDistancePointRect(left: PointData, right: RectData, unit: Vec2, outSide?: HitRectSide): number | null {
   let best = null;
 
   // horizontal hit
@@ -218,10 +227,16 @@ export function hitDistancePointRect(left: PointData, right: RectData, unit: Vec
     // moving from left to right, the first hit could be on the left edge
     const candidate = hitDistancePointSegment(left, rectSegmentLeftData(right), unit);
     best = minHitDistance(best, candidate);
+    if (outSide !== undefined && best === candidate) {
+      outSide.side = "Left";
+    }
   } else if (unit.x < 0) {
     // moving from right to left, the first hit could be on the right edge
     const candidate = hitDistancePointSegment(left, rectSegmentRightData(right), unit);
     best = minHitDistance(best, candidate);
+    if (outSide !== undefined && best === candidate) {
+      outSide.side = "Right";
+    }
   } // else: moving vertically, or not moving -> we we won't hit the left/right edges
 
   // vertical hit
@@ -229,19 +244,25 @@ export function hitDistancePointRect(left: PointData, right: RectData, unit: Vec
     // moving from bottom to top, the first hit could be on the bottom edge
     const candidate = hitDistancePointSegment(left, rectSegmentBottomData(right), unit);
     best = minHitDistance(best, candidate);
+    if (outSide !== undefined && best === candidate) {
+      outSide.side = "Bottom";
+    }
   } else if (unit.y < 0) {
     // moving from top to bottom, the first hit could be on the top edge
     const candidate = hitDistancePointSegment(left, rectSegmentTopData(right), unit);
     best = minHitDistance(best, candidate);
+    if (outSide !== undefined && best === candidate) {
+      outSide.side = "Top";
+    }
   } // else: moving horizontally, or not moving -> we we won't hit the bottom/top edges
 
   return best;
 }
 
 /// Hit distance with a rect approaching a rect
-export function hitDistanceRectRect(left: RectData, right: RectData, unit: Vec2): number | null {
+export function hitDistanceRectRect(left: RectData, right: RectData, unit: Vec2, outSide?: HitRectSide): number | null {
   const target : RectData = {center: right.center, r: left.r.add(right.r)};
-  return hitDistancePointRect(left, target, unit);
+  return hitDistancePointRect(left, target, unit, outSide);
 }
 
 /// return the min hit distance, `null` is treated as +inf

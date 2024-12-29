@@ -1,14 +1,13 @@
 import {AssetLoader} from "./assets.mjs";
 import {BACKGROUND_MUSIC, GLOBAL_ASSET_LIST} from "./assets/index.mts";
 import {World} from "./game/world.mts";
-import {Wall} from "./game/wall.mjs";
 import {Vec2} from "./hitbox.mts";
 import {
   MAX_VIEWPORT_HEIGHT,
   MIN_VIEWPORT_HEIGHT,
   BASE_CELL_PX,
   TICK_DURATION_MS,
-  VIEW_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, BORDER_WIDTH
+  VIEW_WIDTH,
 } from "./game/data.mjs";
 import { Player } from "./game/player.mts";
 
@@ -335,8 +334,6 @@ export class App {
   public world(): World {
     if (this.#world === null) {
       this.#world = new World(this.#assets);
-      Wall.attach(this.#world, {center: new Vec2(-BORDER_WIDTH, 0), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT * 1000),});
-      Wall.attach(this.#world, {center: new Vec2(CHUNK_WIDTH + BORDER_WIDTH, 0), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT * 1000),});
       Player.attach(this.#world, new Vec2(14.5, 2.5));
     }
     return this.#world;

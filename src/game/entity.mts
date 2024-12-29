@@ -7,11 +7,11 @@ export class Entity {
   /// Globally unique entity id
   public id: number;
   /// If this entity was created from a chunk, chunk id
-  public chunkId?: number;
+  public chunkId: number | null;
   /// Rendering depth, a higher value is rendered later (on top)
   public depth: number;
   /// Hitbox for collisions, in entity coords
-  private hitbox?: HitBox;
+  public hitbox?: HitBox;
 
   // cached hitbox in world coords (key and value)
   #worldHitboxPos?: Vec2;
@@ -26,6 +26,9 @@ export class Entity {
 
   /// All entities without this flag will be destroyed at the end of the update
   public isAttached: boolean;
+
+  // value between 0 and 1, remaining "energy" for this tick
+  public energy: number;
 
   // Position in world coordinates
   public pos: Vec2;
@@ -56,8 +59,10 @@ export class Entity {
     this.depth = depth;
     this.hitbox = hitbox;
     this.physics = hitbox !== undefined;
+    this.chunkId = null;
     this.updatedAt = 0;
     this.isAttached = true;
+    this.energy = 1;
     this.pos = Vec2.ZERO;
     this.vel = Vec2.ZERO;
     this.acc = Vec2.ZERO;
@@ -97,5 +102,21 @@ export class Entity {
       }
       return this.#worldHitbox;
     }
+  }
+
+  public storeOldPhysics(): void {
+    this.oldPos = this.pos;
+    this.oldVel = this.vel;
+    this.oldAcc = this.acc;
+    this.oldRotationSpeed = this.rotationSpeed;
+    this.oldAngle = this.angle;
+  }
+
+  public commitPhysics(): void {
+    this.pos = this.newPos;
+    this.vel = this.newVel;
+    this.acc = this.newAcc;
+    this.rotationSpeed = this.newRotationSpeed;
+    this.angle = this.newAngle;
   }
 }

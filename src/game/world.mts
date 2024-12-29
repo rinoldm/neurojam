@@ -18,6 +18,7 @@ interface Chunk {
 export class World {
   assets: AssetLoader;
   entities: Map<number, Entity>;
+  entitiesByChunk: Map<number, Set<Entity>>;
   nextId: number;
   depthOrder: null | Entity[];
   camera: Vec2;
@@ -29,6 +30,7 @@ export class World {
   constructor(assets: AssetLoader) {
     this.assets = assets;
     this.entities = new Map<number, Entity>();
+    this.entitiesByChunk = new Map();
     this.nextId = 1;
     this.depthOrder = null;
     this.camera = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT / 2);
@@ -110,10 +112,23 @@ export class World {
     }
   }
 
+  public getCloseEntities(pos: Vec2): Entity[] {
+    const res: Entity[] = [];
+    const chunkId = this.posToChunkId(pos);
+    for (let cid = chunkId - 1; cid < chunkId + 2; cid++) {
+      const ents = this.entitiesByChunk.get(cid);
+      if (ents !== undefined) {
+        res.push(...ents);
+      }
+    }
+    return res;
+  }
+
   public applyChunk(chunk: Chunk) {
     if (chunk.applied) {
       return;
     }
+    const chunkEntities: Set<Entity> = new Set();
 
     const worldAnchor = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT * chunk.id);
     const level: Level = this.assets.getLevel(chunk.asset);
@@ -136,9 +151,7 @@ export class World {
           const worldRadius = chunkRadius;
           const worldCenter = chunk.flipped ? chunkCenter.sub(levelAnchor).elemMult(Vec2.TOP_LEFT).add(worldAnchor) : chunkCenter.sub(levelAnchor).add(worldAnchor);
 
-          console.log(worldCenter);
-
-          Wall.attach(this, {center: worldCenter, r: worldRadius});
+          chunkEntities.add(Wall.attach(this, {center: worldCenter, r: worldRadius}));
 
           break;
         }
@@ -148,6 +161,17 @@ export class World {
       }
     }
 
+    chunkEntities.add(Wall.attach(this, {center: worldAnchor.add(new Vec2(-CHUNK_WIDTH/2 -BORDER_WIDTH, 0)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT),}));
+    chunkEntities.add(Wall.attach(this, {center: worldAnchor.add(new Vec2(CHUNK_WIDTH/2 +BORDER_WIDTH, 0)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT),}));
+    for(const e of chunkEntities) {
+      e.chunkId = chunk.id;
+    }
+    this.entitiesByChunk.set(chunk.id, chunkEntities);
+
     chunk.applied = true;
+  }
+
+  public posToChunkId(pos: Vec2): number {
+    return Math.floor(pos.y / CHUNK_HEIGHT);
   }
 }

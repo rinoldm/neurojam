@@ -177,6 +177,13 @@ test("hitDistRectRect0", () => {
   expect(hitDistanceRectRect(left, right, unit)).toBe(0.25);
 });
 
+test("hitDistRectRect1", () => {
+  const left: RectData = {center: new Vec2(14.293971631206894, 0.9414930555555561), r: new Vec2(0.75, 0.9375)};
+  const right: RectData = {center: new Vec2(14, -0.5), r: new Vec2(11, 0.5)};
+  const unit = new Vec2(-0.11666666666666667, -0.0040798611111111105);
+  expect(hitDistanceRectRect(left, right, unit)).toBe(0.9787234042554451);
+});
+
 test("RectRect0", () => {
   const a: RectHitBox = {type: "Rect", center: new Vec2(10, 20), r: new Vec2(5, 2)};
   const b: RectHitBox = {type: "Rect", center: new Vec2(100, 20), r: new Vec2(5, 2)};

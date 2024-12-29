@@ -1,6 +1,6 @@
 import {PlayView} from "../app.mts";
 import {Color} from "../color.mts";
-import {hitTest, RectData, RectHitBox, Vec2} from "../hitbox.mjs";
+import {RectData, RectHitBox} from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
@@ -31,31 +31,6 @@ export class Wall extends Entity {
     view.context.fillRect(hb.center.x - hb.r.x, hb.center.y - hb.r.y, hb.r.x * 2, hb.r.y * 2);
   }
 
-  update(world: World, tick: number): void {
-    if (this.updatedAt === tick) {
-      return;
-    }
-    this.updatedAt = tick;
-    const player = world.player();
-    const hit = hitTest(this.worldHitbox(), player.worldHitbox());
-    // console.log(hit);
-    this.hasHit = hit !== null;
-    if (hit === null) {
-      return;
-    }
-
-    let dx = -hit.x;
-    let dy = -hit.y;
-    if (Math.abs(hit.x) < Math.abs(hit.y)) {
-      dy = 0;
-    } else {
-      dx = 0;
-    }
-    if (dy > 0) {
-      player.onGround = true;
-    }
-
-
-    player.moveRelative(new Vec2(dx, dy));
+  update(_world: World, _tick: number): void {
   }
 }
