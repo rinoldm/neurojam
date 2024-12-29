@@ -13,7 +13,7 @@ import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
 import {SPR_NEURO_BODY} from "../assets/index.mjs";
-import {GRAVITY, JUMP_DY, MAX_HORIZONTAL_SPEED, TICK_DURATION_S, PLAYER_HITBOX_HEIGHT, PLAYER_HITBOX_WIDTH} from "./data.mjs";
+import {GRAVITY, JUMP_DY, MAX_FALL_SPEED, MAX_HORIZONTAL_SPEED, TICK_DURATION_S, PLAYER_HITBOX_HEIGHT, PLAYER_HITBOX_WIDTH, MAX_JUMP_SPEED} from "./data.mjs";
 import {Wall} from "./wall.mts";
 
 export class Player extends Entity {
@@ -95,7 +95,9 @@ export class Player extends Entity {
     } else {
       this.newVel = new Vec2(0, this.newVel.y);
     }
-    // this.newVel = this.newVel.clampAbs(new Vec2(MAX_FALL_SPEED, MAX_HORIZONTAL_SPEED));
+    this.newVel = this.newVel.min(new Vec2(MAX_HORIZONTAL_SPEED, MAX_JUMP_SPEED)).max(new Vec2(-MAX_HORIZONTAL_SPEED, -MAX_FALL_SPEED));
+
+    
 
     const closeEnts = world.getCloseEntities(this.pos);
 

@@ -23,6 +23,7 @@ export class World {
   nextId: number;
   depthOrder: null | Entity[];
   camera: Vec2;
+  cameraTarget: Vec2;
   #player: null | Player;
   #shadow: null | Shadow;
   playerControl: PlayerControl;
@@ -36,6 +37,7 @@ export class World {
     this.nextId = 1;
     this.depthOrder = null;
     this.camera = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT / 2);
+    this.cameraTarget = this.camera;
     this.#player = null;
     this.#shadow = null;
     this.playerControl = {
@@ -68,10 +70,18 @@ export class World {
       entity.update?.(this, tick);
     }
 
+    this.updateCamera();
+  }
+
+  public updateCamera() {
     const curChunkCamera = this.posToChunkId(this.camera);
     const curChunkPlayer = this.posToChunkId(this.#player.pos);
-    if ((this.#player?.pos?.y ?? 0) % CHUNK_HEIGHT <= -(CHUNK_HEIGHT - 0.5) && curChunkCamera == curChunkPlayer) {
-      this.camera = new Vec2(CHUNK_WIDTH / 2, this.camera.y - CHUNK_HEIGHT);
+    if ((this.#player?.pos?.y ?? 0) % CHUNK_HEIGHT <= -(CHUNK_HEIGHT - 0.5) && curChunkCamera == curChunkPlayer && this.cameraTarget.y == this.camera.y) {
+      this.cameraTarget = new Vec2(CHUNK_WIDTH / 2, this.camera.y - CHUNK_HEIGHT);
+    }
+    this.camera = new Vec2(this.camera.x, this.camera.y + (this.cameraTarget.y - this.camera.y) * 1. / 20);
+    if (Math.abs(this.cameraTarget.y - this.camera.y) < 1e-6) {
+      this.camera = new Vec2(this.camera.x, this.cameraTarget.y);
     }
   }
 
