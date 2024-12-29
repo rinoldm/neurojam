@@ -140,6 +140,9 @@ export class App {
             case "e":
               this.world().playerControl.use = this.#tickCount;
               break;
+            case "b":
+              this.world().playerControl.debug = this.#tickCount;
+              break;
           }
         }
         if (ev.type === "keyup") {
@@ -164,6 +167,9 @@ export class App {
             case " ":
             case "e":
               this.world().playerControl.use = null;
+              break;
+            case "b":
+              this.world().playerControl.debug = null;
               break;
           }
         }

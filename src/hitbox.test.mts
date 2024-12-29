@@ -35,11 +35,11 @@ test("hitDistPointSegment0", () => {
 });
 
 test("hitDistPointSegment1", () => {
-  // hit an edge of the segment
+  // hit an edge of the segment (normal)
   const left: PointData = {center: new Vec2(-1, 5)};
   const right: SegmentData = {center: new Vec2(1, -2), r: new Vec2(2, 1)};
   const unit = new Vec2(2, -3);
-  expect(hitDistancePointSegment(left, right, unit)).toBe(2);
+  expect(hitDistancePointSegment(left, right, unit)).toBe(null);
 });
 
 test("hitDistPointSegment2", () => {
@@ -184,6 +184,20 @@ test("hitDistRectRect1", () => {
   expect(hitDistanceRectRect(left, right, unit)).toBe(0.9787234042554451);
 });
 
+test("hitDistRectRect2", () => {
+  const left: RectData = {center: new Vec2(24.425, -0.02402777777784937), r: new Vec2(0.575, 0.9375)};
+  const right: RectData = {center: new Vec2(25.5, -14.5), r: new Vec2(0.5, 14.5)};
+  const unit = new Vec2(0, -0.08585069444444436);
+  expect(hitDistanceRectRect(left, right, unit)).toBe(null);
+});
+
+test("hitDistRectRect3", () => {
+  const left: RectData = {center: new Vec2(6.425000000000059, -6.0625), r: new Vec2(0.575, 0.9375)};
+  const right: RectData = {center: new Vec2(10, -8.5), r: new Vec2(3, 1.5)};
+  const unit = new Vec2(0.08333333333333333, -0.0037326388888888878);
+  expect(hitDistanceRectRect(left, right, unit)).toBe(0);
+});
+
 test("RectRect0", () => {
   const a: RectHitBox = {type: "Rect", center: new Vec2(10, 20), r: new Vec2(5, 2)};
   const b: RectHitBox = {type: "Rect", center: new Vec2(100, 20), r: new Vec2(5, 2)};
@@ -196,9 +210,20 @@ test("RectRect1", () => {
   expect(hitTest(a, b)).toBe(null);
 });
 
-
 test("RectRect2", () => {
   const a: RectHitBox = {type: "Rect", center: new Vec2(10, 20), r: new Vec2(5, 2)};
   const b: RectHitBox = {type: "Rect", center: new Vec2(18, 20), r: new Vec2(5, 2)};
   expect(hitTest(a, b)).toMatchObject(new Vec2(-2, -4));
+});
+
+test("RectRect3", () => {
+  const left: RectHitBox = {type: "Rect", center: new Vec2(24.425, -3.0625), r: new Vec2(0.575, 0.9375)};
+  const right: RectHitBox = {type: "Rect", center: new Vec2(25.5, -14.5), r: new Vec2(0.5, 14.5)};
+  expect(hitTest(left, right)).toBe(null);
+});
+
+test("RectRect4", () => {
+  const left: RectHitBox = {type: "Rect", center: new Vec2(6.508333333333393, -6.066232638888889), r: new Vec2(0.575, 0.9375)};
+  const right: RectHitBox = {type: "Rect", center: new Vec2(10, -8.5), r: new Vec2(3, 1.5)};
+  expect(hitTest(left, right)).toMatchObject(new Vec2(-0.08333333333339343, 0.0037326388888887507));
 });

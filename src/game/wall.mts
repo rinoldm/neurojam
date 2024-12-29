@@ -13,14 +13,14 @@ export class Wall extends Entity {
   color: Color;
   hasHit: boolean;
 
-  constructor(id: number, rect: RectData) {
-    super(id, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
+  constructor(id: number, chunkId: number, rect: RectData) {
+    super(id, chunkId, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
     this.color = Color.rand();
     this.hasHit = false;
   }
 
-  static attach(world: World, rect: RectData): Wall {
-    return world.register(id => new Wall(id, rect));
+  static attach(world: World, chunkId: number, rect: RectData): Wall {
+    return world.register(id => new Wall(id, chunkId, rect));
   }
 
   render(view: PlayView): void {

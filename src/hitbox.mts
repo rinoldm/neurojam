@@ -209,9 +209,13 @@ export function hitDistancePointSegment(left: PointData, right: SegmentData, uni
   }
   const doubleDist = inv.vecMult(right.center.sub(left.center));
   const dist = doubleDist.x;
-  const segmentRadiusDist = doubleDist.y;
-  if (Math.abs(segmentRadiusDist) < 1) {
+  const segmentRadiusDistAbs = Math.abs(doubleDist.y);
+  if (segmentRadiusDistAbs < 1 - EPSILON) {
     return dist;
+  } else if (segmentRadiusDistAbs < 1) {
+    // we're very close to 1, do a test based on the cosine similarity
+    const cos = Math.abs(right.r.scalar(unit) / (right.r.len() * unit.len()));
+    return cos > 0.99 ? dist : null;
   } else {
     // intersection beyond the radius of the segment
     return null;
@@ -276,12 +280,19 @@ export function minHitDistance(left: number | null, right: number | null): numbe
   }
 }
 
+/// Hit distance with a rect approaching a rect
+export function hitDistanceCircleRect(left: CircleData, right: RectData, unit: Vec2, outSide?: HitRectSide): number | null {
+  return hitDistanceRectRect({center: left.center, r: new Vec2(left.r, left.r)}, right, unit, outSide);
+}
+
 /// `null` if no hit, `Vec2` representing the intersection depth on hit
 export function hitTest(left: HitBox, right: HitBox): Vec2 | null {
   if (left.type === "Rect" && right.type === "Rect") {
     return hitTestRectRect(left, right);
   } else if (left.type === "Rect" && right.type === "Circle") {
     return hitTestRectCircle(left, right);
+  } else if (left.type === "Circle" && right.type === "Rect") {
+    return hitTestCircleRect(left, right);
   } else {
     throw new Error(`NotImplemented: hitTest(${left.type}, ${right.type})`)
   }
@@ -292,7 +303,7 @@ export function hitTestRectRect(a: RectData, b: RectData): Vec2 | null {
   const deltaAbs = delta.abs();
   const size = a.r.add(b.r);
   const hit = deltaAbs.sub(size);
-  if (hit.x >= 0 || hit.y >= 0) {
+  if (hit.x > -EPSILON || hit.y > -EPSILON) {
     return null;
   } else {
     return new Vec2(
@@ -317,15 +328,20 @@ export function hitTestRectPoint(a: RectData, b: PointData): Vec2 | null {
   }
 }
 
-export function hitTestRectCircle(a: RectData, b: CircleData): Vec2 | null {
-  const delta = b.center.sub(a.center);
-  const crossDist = delta.abs().sub(a.r);
-  const foo = Math.min(Math.max(crossDist.x, crossDist.y), 0);
-  if (foo >= 0) {
-    return null;
-  } else {
-    return new Vec2(a.center.x, a.center.y);
-  }
+export function hitTestRectCircle(left: RectData, right: CircleData): Vec2 | null {
+  return hitTestRectRect(left, {center: right.center, r: new Vec2(right.r, right.r)});
+  // const delta = left.center.sub(left.center);
+  // const crossDist = delta.abs().sub(left.r);
+  // const foo = Math.min(Math.max(crossDist.x, crossDist.y), 0);
+  // if (foo >= 0) {
+  //   return null;
+  // } else {
+  //   return new Vec2(left.center.x, left.center.y);
+  // }
+}
+
+export function hitTestCircleRect(left: CircleData, right: RectData): Vec2 | null {
+  return hitTestRectRect({center: left.center, r: new Vec2(left.r, left.r)}, right);
 }
 
 /// Get the top segment from a rect hitbox

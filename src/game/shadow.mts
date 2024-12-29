@@ -11,7 +11,7 @@ export class Shadow extends Entity {
   #alphaContext: CanvasRenderingContext2D;
 
   constructor(id: number) {
-    super(id, SHADOW_DEPTH);
+    super(id, null, SHADOW_DEPTH);
     this.#lightSources = [];
     this.#alphaCanvas = document.createElement("canvas");
     this.#alphaCanvas.width = 100;

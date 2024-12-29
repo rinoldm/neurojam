@@ -42,12 +42,20 @@ export class Entity {
   /// In anticlockwise radians
   public angle: number;
 
+  public touchGround: boolean;
+  public touchCeiling: boolean;
+  public touchWall: boolean;
+
   // Old physics state, before the update
   public oldPos: Vec2;
   public oldVel: Vec2;
   public oldAcc: Vec2;
   public oldRotationSpeed: number;
   public oldAngle: number;
+
+  public oldTouchGround: boolean;
+  public oldTouchCeiling: boolean;
+  public oldTouchWall: boolean;
 
   // Target physics state, after the update (not yet commited)
   public newPos: Vec2;
@@ -56,8 +64,11 @@ export class Entity {
   public newRotationSpeed: number;
   public newAngle: number;
 
-  constructor(id: number, depth: number, hitbox?: HitBox) {
+
+
+  constructor(id: number, chunkId: number | null, depth: number, hitbox?: HitBox) {
     this.id = id;
+    this.chunkId = chunkId;
     this.depth = depth;
     this.hitbox = hitbox;
     this.physics = hitbox !== undefined;
@@ -81,6 +92,12 @@ export class Entity {
     this.newAcc = Vec2.ZERO;
     this.newRotationSpeed = 0;
     this.newAngle = 0;
+    this.oldTouchGround = false;
+    this.oldTouchCeiling = false;
+    this.oldTouchWall = false;
+    this.touchGround = false;
+    this.touchCeiling = false;
+    this.touchWall = false;
   }
 
   update?(world: World, tick: number): void;
@@ -113,6 +130,9 @@ export class Entity {
     this.oldAcc = this.acc;
     this.oldRotationSpeed = this.rotationSpeed;
     this.oldAngle = this.angle;
+    this.oldTouchGround = this.touchGround;
+    this.oldTouchWall = this.touchWall;
+    this.oldTouchCeiling = this.touchCeiling;
   }
 
   public commitPhysics(): void {

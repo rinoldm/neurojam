@@ -20,3 +20,13 @@ export const JUMP_PEAK_DURATION = 0.8;
 export const GRAVITY = 2 * JUMP_PEAK_HEIGHT / (JUMP_PEAK_DURATION * JUMP_PEAK_DURATION);
 export const JUMP_DY = 2 * JUMP_PEAK_HEIGHT / JUMP_PEAK_DURATION;
 export const TAU = Math.PI * 2;
+
+export const TORCH_HIT_RADIUS = 0.25;
+export const TORCH_GRAB_RADIUS = 0.75;
+export const TORCH_ABANDON_RADIUS = 1.25;
+export const TORCH_MIN_POWER_DURATION = 0.2;
+export const TORCH_MIN_POWER_ANGLE = TAU / 12;
+export const TORCH_MIN_POWER_SPEED = JUMP_DY * 0.75;
+export const TORCH_MAX_POWER_DURATION = 0.6;
+export const TORCH_MAX_POWER_ANGLE = TAU / 6;
+export const TORCH_MAX_POWER_SPEED = JUMP_DY * 1.5;

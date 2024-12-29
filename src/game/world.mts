@@ -8,6 +8,7 @@ import {Wall} from "./wall.mts";
 import {LVL_000, LVL_PROTOTYPE1, LVL_PROTOTYPE2, LVL_PROTOTYPE3, LVL_PROTOTYPE4} from "../assets/index.mjs";
 import { Level } from "../level.mts";
 import {Shadow} from "./shadow.mjs";
+import { Torch } from "./torch.mts";
 
 interface Chunk {
   id: number;
@@ -20,12 +21,12 @@ export class World {
   assets: AssetLoader;
   entities: Map<number, Entity>;
   entitiesByChunk: Map<number, Set<Entity>>;
+  globalEntities: Set<Entity>;
   nextId: number;
   depthOrder: null | Entity[];
   camera: Vec2;
   cameraTarget: Vec2;
   #player: null | Player;
-  #shadow: null | Shadow;
   playerControl: PlayerControl;
   chunks: Chunk[];
   viewHeight: number;
@@ -34,12 +35,12 @@ export class World {
     this.assets = assets;
     this.entities = new Map<number, Entity>();
     this.entitiesByChunk = new Map();
+    this.globalEntities = new Set();
     this.nextId = 1;
     this.depthOrder = null;
     this.camera = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT / 2);
     this.cameraTarget = this.camera;
     this.#player = null;
-    this.#shadow = null;
     this.playerControl = {
       down: null, jump: null, left: null, right: null, use: null,
     };
@@ -54,6 +55,16 @@ export class World {
     this.dirtyDepth();
     if (entity instanceof Player) {
       this.#player = entity;
+    }
+    if (entity.chunkId === null) {
+      this.globalEntities.add(entity);
+    } else {
+      let chunkEntities = this.entitiesByChunk.get(entity.chunkId);
+      if (chunkEntities === undefined) {
+        chunkEntities = new Set();
+        this.entitiesByChunk.set(entity.chunkId, chunkEntities);
+      }
+      chunkEntities.add(entity);
     }
     return entity;
   }
@@ -146,25 +157,20 @@ export class World {
         res.push(...ents);
       }
     }
-    if (this.#player !== null) {
-      res.push(this.#player);
-    }
-    if (this.#shadow !== null) {
-      res.push(this.#shadow);
-    }
+    res.push(...this.globalEntities);
     return res;
   }
 
   public applyChunk(chunk: Chunk) {
     if (chunk.id === 0) {
-      this.#player = Player.attach(this, new Vec2(14.5, 2.5));
-      this.#shadow = Shadow.attach(this);
+      this.#player = Player.attach(this, new Vec2(4.5, 2.5));
+      Shadow.attach(this);
+      Torch.attach(this, new Vec2(16.5, 2.5));
     }
 
     if (chunk.applied) {
       return;
     }
-    const chunkEntities: Set<Entity> = new Set();
 
     const worldAnchor = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT * chunk.id);
     const level: Level = this.assets.getLevel(chunk.asset);
@@ -187,7 +193,7 @@ export class World {
           const worldRadius = chunkRadius;
           const worldCenter = chunk.flipped ? chunkCenter.sub(levelAnchor).elemMult(Vec2.TOP_LEFT).add(worldAnchor) : chunkCenter.sub(levelAnchor).add(worldAnchor);
 
-          chunkEntities.add(Wall.attach(this, {center: worldCenter, r: worldRadius}));
+          Wall.attach(this, chunk.id, {center: worldCenter, r: worldRadius});
 
           break;
         }
@@ -204,12 +210,8 @@ export class World {
       }
     }
 
-    chunkEntities.add(Wall.attach(this, {center: worldAnchor.add(new Vec2(-CHUNK_WIDTH/2 -BORDER_WIDTH, 0)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT),}));
-    chunkEntities.add(Wall.attach(this, {center: worldAnchor.add(new Vec2(CHUNK_WIDTH/2 +BORDER_WIDTH, 0)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT),}));
-    for(const e of chunkEntities) {
-      e.chunkId = chunk.id;
-    }
-    this.entitiesByChunk.set(chunk.id, chunkEntities);
+    Wall.attach(this, chunk.id, {center: worldAnchor.add(new Vec2(-CHUNK_WIDTH/2 -BORDER_WIDTH, -CHUNK_HEIGHT / 2)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT / 2),});
+    Wall.attach(this, chunk.id, {center: worldAnchor.add(new Vec2(CHUNK_WIDTH/2 +BORDER_WIDTH, -CHUNK_HEIGHT / 2)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT / 2),});
 
     chunk.applied = true;
   }

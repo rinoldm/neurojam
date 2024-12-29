@@ -1,6 +1,6 @@
 import {PlayView} from "../app.mts";
 import {
-  CircleHitBox,
+  CircleHitBox, EPSILON,
   hitDistanceRectRect,
   HitRectSide,
   hitTest,
@@ -11,7 +11,7 @@ import {
 } from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
-import {HITBOX_DEPTH} from "./depth.mjs";
+import {PLAYER_DEPTH} from "./depth.mjs";
 import {SPR_NEURO_BODY} from "../assets/index.mjs";
 import {GRAVITY, JUMP_DY, MAX_FALL_SPEED, MAX_HORIZONTAL_SPEED, TICK_DURATION_S, PLAYER_HITBOX_HEIGHT, PLAYER_HITBOX_WIDTH, MAX_JUMP_SPEED} from "./data.mjs";
 import {Wall} from "./wall.mts";
@@ -24,14 +24,6 @@ export class Player extends Entity {
   spr_body: HTMLImageElement;
   spr_arms: HTMLImageElement;
 
-  oldTouchGround: boolean;
-  oldTouchCeiling: boolean;
-  oldTouchWall: boolean;
-
-  touchGround: boolean;
-  touchCeiling: boolean;
-  touchWall: boolean;
-
   dir: number;
   curAnimId: number;
   curAnimFrameId: number;
@@ -40,16 +32,10 @@ export class Player extends Entity {
   currentHP: number;
 
   private constructor(id: number, spr_body: HTMLImageElement, spr_arms: HTMLImageElement, pos: Vec2, rect: RectData) {
-    super(id, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
+    super(id, null, PLAYER_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
     this.spr_body = spr_body;
     this.spr_arms = spr_arms;
-    this.lightSources.push({type: "Circle", center: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2), r: 15} satisfies CircleHitBox);
-    this.oldTouchGround = false;
-    this.oldTouchCeiling = false;
-    this.oldTouchWall = false;
-    this.touchGround = false;
-    this.touchCeiling = false;
-    this.touchWall = false;
+    this.lightSources.push({type: "Circle", center: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2), r: 5} satisfies CircleHitBox);
     this.pos = pos;
     this.dir = 1;
     this.curAnimId = 0;
@@ -72,9 +58,6 @@ export class Player extends Entity {
     this.updatedAt = tick;
     this.energy = 1;
 
-    this.oldTouchGround = this.touchGround;
-    this.oldTouchWall = this.touchWall;
-    this.oldTouchCeiling = this.touchCeiling;
     this.storeOldPhysics();
 
     this.touchGround = false;
@@ -100,6 +83,13 @@ export class Player extends Entity {
     
 
     const closeEnts = world.getCloseEntities(this.pos);
+
+    for (const ent of closeEnts) {
+      if (!(ent instanceof Wall)) {
+        continue;
+      }
+      ent.hasHit = false;
+    }
 
     while (this.energy > 0) {
       let usedEnergy = Math.max(this.energy, 0.1);
@@ -128,11 +118,16 @@ export class Player extends Entity {
         if (hit === null) {
           continue;
         }
+        ent.hasHit = true;
 
         const dist = hitDistanceRectRect(oldHitBox, wallHb, moveVec, outHitSide);
 
-        if (dist === null || dist < 0) {
-          console.warn("failed to compute collision");
+        if (dist === null || dist < -EPSILON) {
+          console.warn(`failed to compute collision: ${dist}`);
+          if (world.playerControl.debug) {
+            console.log(JSON.stringify(newHitbox), JSON.stringify(wallHb));
+            console.log(JSON.stringify(oldHitBox), JSON.stringify(wallHb), JSON.stringify(moveVec), JSON.stringify(outHitSide), dist);
+          }
           continue;
         }
         if (dist >= usedEnergy) {
@@ -205,4 +200,5 @@ export interface PlayerControl {
   right: number | null;
   down: number | null;
   use: number | null;
+  debug: number | null;
 }
