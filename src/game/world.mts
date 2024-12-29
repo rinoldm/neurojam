@@ -5,7 +5,7 @@ import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT} from "./da
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
-import {LVL_000} from "../assets/index.mjs";
+import {LVL_000, LVL_PROTOTYPE4} from "../assets/index.mjs";
 import { Level } from "../level.mts";
 import {Shadow} from "./shadow.mjs";
 
@@ -114,7 +114,7 @@ export class World {
     while(this.chunks.length < neededChunks) {
       const chunk: Chunk = {
         id: this.chunks.length,
-        asset: LVL_000,
+        asset: LVL_PROTOTYPE4,
         flipped: true,
         applied: false,
       };
@@ -177,6 +177,13 @@ export class World {
 
           break;
         }
+        case "Water":
+        case "Sand":
+        case "Enemy1":
+        case "Enemy2":
+        case "Enemy3":
+          break;
+          
         default: {
           throw new Error(`Unexpected object class ${obj.class}`)
         }

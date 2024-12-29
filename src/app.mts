@@ -186,7 +186,7 @@ export class App {
 
         const view: LoadView = this.loadView();
         const progress = this.#assets.progress();
-        view.labelText.data = progress.ready ? "Click To Play" : "Loading...";
+        view.labelText.data = progress.ready ? "The Curse of Ra" : "Loading...";
         view.bar.max = Math.max(progress.assetTotal, 1);
         view.bar.value = progress.assetOk;
         break;
