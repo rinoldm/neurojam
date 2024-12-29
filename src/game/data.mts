@@ -29,4 +29,5 @@ export const TORCH_MIN_POWER_ANGLE = TAU / 12;
 export const TORCH_MIN_POWER_SPEED = JUMP_DY * 0.75;
 export const TORCH_MAX_POWER_DURATION = 0.6;
 export const TORCH_MAX_POWER_ANGLE = TAU / 6;
-export const TORCH_MAX_POWER_SPEED = JUMP_DY * 1.5;
+export const TORCH_MAX_POWER_SPEED = JUMP_DY * 5;
+export const MAX_TORCHES_HELD = 5;

@@ -1,10 +1,5 @@
 import {PlayView} from "../app.mts";
 import {
-  CircleHitBox, EPSILON,
-  hitDistanceRectRect,
-  HitRectSide,
-  hitTest,
-  moveHitbox,
   RectData,
   RectHitBox,
   Vec2
@@ -13,8 +8,18 @@ import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {PLAYER_DEPTH} from "./depth.mjs";
 import {SPR_NEURO_BODY} from "../assets/index.mjs";
-import {GRAVITY, JUMP_DY, MAX_FALL_SPEED, MAX_HORIZONTAL_SPEED, TICK_DURATION_S, PLAYER_HITBOX_HEIGHT, PLAYER_HITBOX_WIDTH, MAX_JUMP_SPEED} from "./data.mjs";
-import {Wall} from "./wall.mts";
+import {
+  GRAVITY,
+  JUMP_DY,
+  MAX_FALL_SPEED,
+  MAX_HORIZONTAL_SPEED,
+  TICK_DURATION_S,
+  PLAYER_HITBOX_HEIGHT,
+  PLAYER_HITBOX_WIDTH,
+  MAX_JUMP_SPEED,
+  TORCH_MIN_POWER_DURATION
+} from "./data.mjs";
+import {Torch} from "./torch.mjs";
 
 export class Player extends Entity {
   worldHitbox(): RectHitBox {
@@ -30,18 +35,21 @@ export class Player extends Entity {
 
   totalHP: number;
   currentHP: number;
+  torches: number[];
+  loadUseSince: number | null;
 
   private constructor(id: number, spr_body: HTMLImageElement, spr_arms: HTMLImageElement, pos: Vec2, rect: RectData) {
     super(id, null, PLAYER_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
     this.spr_body = spr_body;
     this.spr_arms = spr_arms;
-    this.lightSources.push({type: "Circle", center: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2), r: 5} satisfies CircleHitBox);
     this.pos = pos;
     this.dir = 1;
     this.curAnimId = 0;
     this.curAnimFrameId = 0;
     this.totalHP = 3;
     this.currentHP = this.totalHP;
+    this.torches = [];
+    this.loadUseSince = null;
   }
 
   static attach(world: World, pos: Vec2): Player {
@@ -80,90 +88,34 @@ export class Player extends Entity {
     }
     this.newVel = this.newVel.min(new Vec2(MAX_HORIZONTAL_SPEED, MAX_JUMP_SPEED)).max(new Vec2(-MAX_HORIZONTAL_SPEED, -MAX_FALL_SPEED));
 
-    
+    this.doPhysics(world, tick);
 
     const closeEnts = world.getCloseEntities(this.pos);
-
     for (const ent of closeEnts) {
-      if (!(ent instanceof Wall)) {
-        continue;
+      if (ent instanceof Torch) {
+        if (ent.testGrab(this)) {
+          ent.grab(this, tick);
+        }
       }
-      ent.hasHit = false;
     }
 
-    while (this.energy > 0) {
-      let usedEnergy = Math.max(this.energy, 0.1);
-      const oldHitBox = moveHitbox(this.hitbox!, this.pos) as RectHitBox;
-
-      if (this.touchWall) {
-        this.newVel = new Vec2(0, this.newVel.y);
+    if (world.playerControl.use) {
+      if (this.loadUseSince === null) {
+        this.loadUseSince = tick;
       }
-      if (this.touchGround || this.touchCeiling) {
-        this.newVel = new Vec2(this.newVel.x, 0);
-      }
-
-      let moveVec = this.newVel.scalarMult(TICK_DURATION_S);
-      this.newPos = this.pos.add(moveVec.scalarMult(usedEnergy));
-      let newHitbox: RectHitBox = moveHitbox(this.hitbox!, this.newPos) as RectHitBox;
-      const outHitSide: HitRectSide = {};
-
-      let closestHitSide: null | "Top" | "Bottom" | "Left" | "Right" = null;
-
-      for (const ent of closeEnts) {
-        if (!(ent instanceof Wall)) {
-          continue;
-        }
-        const wallHb = ent.worldHitbox();
-        const hit = hitTest(newHitbox, wallHb);
-        if (hit === null) {
-          continue;
-        }
-        ent.hasHit = true;
-
-        const dist = hitDistanceRectRect(oldHitBox, wallHb, moveVec, outHitSide);
-
-        if (dist === null || dist < -EPSILON) {
-          console.warn(`failed to compute collision: ${dist}`);
-          if (world.playerControl.debug) {
-            console.log(JSON.stringify(newHitbox), JSON.stringify(wallHb));
-            console.log(JSON.stringify(oldHitBox), JSON.stringify(wallHb), JSON.stringify(moveVec), JSON.stringify(outHitSide), dist);
-          }
-          continue;
-        }
-        if (dist >= usedEnergy) {
-          continue;
-        }
-        // dist is shorter!
-
-        usedEnergy = dist;
-        closestHitSide = outHitSide.side!;
-
-        moveVec = this.newVel.scalarMult(TICK_DURATION_S);
-        this.newPos = this.pos.add(moveVec.scalarMult(usedEnergy));
-        newHitbox = moveHitbox(this.hitbox!, this.newPos) as RectHitBox;
-      }
-
-      switch (closestHitSide) {
-        case "Left":
-        case "Right": {
-          this.touchWall = true;
-          break;
-        }
-        case "Top": {
-          this.touchGround = true;
-          break;
-        }
-        case "Bottom": {
-          this.touchCeiling = true;
-          break;
+    } else {
+      if (this.loadUseSince !== null && this.torches.length > 0) {
+        const strength = (tick - this.loadUseSince) * TICK_DURATION_S;
+        if (strength < TORCH_MIN_POWER_DURATION) {
+          this.slash();
+        } else {
+          const mainTorchId = this.torches[0];
+          const mainTorch = world.entities.get(mainTorchId)! as Torch;
+          mainTorch.throw(world, this, tick, strength);
         }
       }
-
-      this.pos = this.newPos;
-      this.energy -= usedEnergy;
+      this.loadUseSince = null;
     }
-
-    this.commitPhysics();
 
     if (this.vel.x == 0 && this.vel.y == 0) { // stopped on ground
       this.curAnimId = 0;
@@ -177,6 +129,10 @@ export class Player extends Entity {
       // this.curAnimId = 1;
       this.curAnimFrameId = 1;
     }
+  }
+
+  slash() {
+    console.log("todo: slash attack")
   }
 
   render(view: PlayView): void {

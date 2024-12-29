@@ -4,6 +4,7 @@ import {RectData, RectHitBox} from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {HITBOX_DEPTH} from "./depth.mjs";
+import {TAG_WALL} from "./tag.mjs";
 
 export class Wall extends Entity {
   worldHitbox(): RectHitBox {
@@ -11,12 +12,13 @@ export class Wall extends Entity {
   }
 
   color: Color;
-  hasHit: boolean;
+  hitAt: null | number;
 
   constructor(id: number, chunkId: number, rect: RectData) {
-    super(id, chunkId, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
+    super(id, chunkId, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox);
+    this.tags.add(TAG_WALL);
     this.color = Color.rand();
-    this.hasHit = false;
+    this.hitAt = null;
   }
 
   static attach(world: World, chunkId: number, rect: RectData): Wall {
@@ -24,11 +26,12 @@ export class Wall extends Entity {
   }
 
   render(view: PlayView): void {
-    view.context.fillStyle = this.hasHit ? "white" : this.color.toCss();
+    view.context.fillStyle = this.hitAt === this.updatedAt ? "white" : this.color.toCss();
     const hb = this.worldHitbox();
     view.context.fillRect(hb.center.x - hb.r.x, hb.center.y - hb.r.y, hb.r.x * 2, hb.r.y * 2);
   }
 
-  update(_world: World, _tick: number): void {
+  update(_world: World, tick: number): void {
+    this.updatedAt = tick;
   }
 }

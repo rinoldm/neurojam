@@ -5,10 +5,10 @@ import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT} from "./da
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
-import {LVL_000, LVL_PROTOTYPE1, LVL_PROTOTYPE2, LVL_PROTOTYPE3, LVL_PROTOTYPE4} from "../assets/index.mjs";
-import { Level } from "../level.mts";
+import {LVL_PROTOTYPE4} from "../assets/index.mjs";
+import {Level} from "../level.mts";
 import {Shadow} from "./shadow.mjs";
-import { Torch } from "./torch.mts";
+import {Torch} from "./torch.mts";
 
 interface Chunk {
   id: number;
@@ -42,7 +42,7 @@ export class World {
     this.cameraTarget = this.camera;
     this.#player = null;
     this.playerControl = {
-      down: null, jump: null, left: null, right: null, use: null,
+      down: null, jump: null, left: null, right: null, use: null, debug: null,
     };
     this.chunks = [];
     this.viewHeight = MAX_VIEWPORT_HEIGHT;
@@ -85,8 +85,12 @@ export class World {
   }
 
   public updateCamera() {
+    const player = this.#player;
+    if (player === null) {
+      return;
+    }
     const curChunkCamera = this.posToChunkId(this.camera);
-    const curChunkPlayer = this.posToChunkId(this.#player.pos);
+    const curChunkPlayer = this.posToChunkId(player.pos);
     if ((this.#player?.pos?.y ?? 0) % CHUNK_HEIGHT <= -(CHUNK_HEIGHT - 0.5) && curChunkCamera == curChunkPlayer && this.cameraTarget.y == this.camera.y) {
       this.cameraTarget = new Vec2(CHUNK_WIDTH / 2, this.camera.y - CHUNK_HEIGHT);
     }
@@ -136,7 +140,7 @@ export class World {
   public genChunks() {
     const lowestVisibleY = this.camera.y - this.viewHeight / 2;
     const neededChunks = 1 + Math.ceil(Math.abs(lowestVisibleY) / CHUNK_HEIGHT);
-    while(this.chunks.length < neededChunks) {
+    while (this.chunks.length < neededChunks) {
       const chunk: Chunk = {
         id: this.chunks.length,
         asset: LVL_PROTOTYPE4,
@@ -166,6 +170,8 @@ export class World {
       this.#player = Player.attach(this, new Vec2(4.5, 2.5));
       Shadow.attach(this);
       Torch.attach(this, new Vec2(16.5, 2.5));
+      Torch.attach(this, new Vec2(14.5, 2.5));
+      Torch.attach(this, new Vec2(12.5, 2.5));
     }
 
     if (chunk.applied) {
@@ -176,14 +182,14 @@ export class World {
     const level: Level = this.assets.getLevel(chunk.asset);
     const levelAnchor = new Vec2(CHUNK_WIDTH / 2, 0);
     for (const obj of level.getObjects()) {
-      switch(obj.class) {
+      switch (obj.class) {
         case "Wall": {
           if (obj.type !== "Rect") {
             throw new Error("`Wall` object must have type `Rect`");
           }
 
           const levelDiameter = new Vec2(obj.width, obj.height);
-          const chunkDiameter =  levelDiameter.elemDiv(level.tileSize);
+          const chunkDiameter = levelDiameter.elemDiv(level.tileSize);
           const chunkRadius = chunkDiameter.scalarMult(0.5);
 
           const levelCorner = new Vec2(obj.x, obj.y);
@@ -210,8 +216,14 @@ export class World {
       }
     }
 
-    Wall.attach(this, chunk.id, {center: worldAnchor.add(new Vec2(-CHUNK_WIDTH/2 -BORDER_WIDTH, -CHUNK_HEIGHT / 2)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT / 2),});
-    Wall.attach(this, chunk.id, {center: worldAnchor.add(new Vec2(CHUNK_WIDTH/2 +BORDER_WIDTH, -CHUNK_HEIGHT / 2)), r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT / 2),});
+    Wall.attach(this, chunk.id, {
+      center: worldAnchor.add(new Vec2(-CHUNK_WIDTH / 2 - BORDER_WIDTH, -CHUNK_HEIGHT / 2)),
+      r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT / 2),
+    });
+    Wall.attach(this, chunk.id, {
+      center: worldAnchor.add(new Vec2(CHUNK_WIDTH / 2 + BORDER_WIDTH, -CHUNK_HEIGHT / 2)),
+      r: new Vec2(BORDER_WIDTH, CHUNK_HEIGHT / 2),
+    });
 
     chunk.applied = true;
   }

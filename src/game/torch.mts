@@ -1,20 +1,36 @@
 import {PlayView} from "../app.mts";
 import {
-  CircleHitBox, hitDistanceCircleRect,
-  HitRectSide,
-  hitTest,
-  moveHitbox,
+  CircleHitBox, hitTest, moveHitbox,
   Vec2
 } from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {TORCH_DEPTH} from "./depth.mjs";
-import {GRAVITY, TAU, TICK_DURATION_S, TORCH_HIT_RADIUS} from "./data.mjs";
-import {Wall} from "./wall.mts";
+import {
+  GRAVITY,
+  MAX_HORIZONTAL_SPEED,
+  MAX_TORCHES_HELD,
+  TAU,
+  TICK_DURATION_S,
+  TORCH_GRAB_RADIUS,
+  TORCH_HIT_RADIUS,
+  TORCH_MAX_POWER_ANGLE,
+  TORCH_MAX_POWER_DURATION, TORCH_MAX_POWER_SPEED,
+  TORCH_MIN_POWER_ANGLE,
+  TORCH_MIN_POWER_DURATION,
+  TORCH_MIN_POWER_SPEED
+} from "./data.mjs";
+import type {Player} from "./player.mjs";
+
+const GRAB_HITBOX: CircleHitBox = {type: "Circle", center: Vec2.ZERO, r: TORCH_GRAB_RADIUS};
 
 export class Torch extends Entity {
   worldHitbox(): CircleHitBox {
     return super.worldHitbox() as any;
+  }
+
+  grabHitbox(): CircleHitBox {
+    return moveHitbox(GRAB_HITBOX, this.pos) as CircleHitBox;
   }
 
   dir: number;
@@ -23,6 +39,12 @@ export class Torch extends Entity {
 
   totalHP: number;
   currentHP: number;
+
+  canBeGrabbed: boolean;
+  heldByPlayer: boolean;
+  heldAnimationStartAt: number | null;
+  hideMainTorch: boolean;
+  lastThrowAt: number | null;
 
   private constructor(id: number, pos: Vec2) {
     super(id, null, TORCH_DEPTH, {type: "Circle", center: Vec2.ZERO, r: TORCH_HIT_RADIUS} satisfies CircleHitBox)
@@ -33,6 +55,11 @@ export class Torch extends Entity {
     this.curAnimFrameId = 0;
     this.totalHP = 3;
     this.currentHP = this.totalHP;
+    this.heldByPlayer = false;
+    this.canBeGrabbed = true;
+    this.heldAnimationStartAt = null;
+    this.hideMainTorch = false;
+    this.lastThrowAt = null;
   }
 
   static attach(world: World, pos: Vec2): Torch {
@@ -48,95 +75,65 @@ export class Torch extends Entity {
 
     this.storeOldPhysics();
 
-    this.newAcc = new Vec2(0, -GRAVITY); // todo: check water, etc.
-    this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
-
-    const closeEnts = world.getCloseEntities(this.pos);
-
-    while (this.energy > 0) {
-      let usedEnergy = Math.max(this.energy, 0.1);
-      const oldHitBox = moveHitbox(this.hitbox!, this.pos) as CircleHitBox;
-
-      if (this.touchWall) {
-        this.newVel = new Vec2(0, this.newVel.y);
+    if (!this.canBeGrabbed && this.lastThrowAt !== null) {
+      const elapsed = (tick - this.lastThrowAt) * TICK_DURATION_S;
+      if (elapsed > 1) {
+        this.canBeGrabbed = true;
       }
-      if (this.touchGround || this.touchCeiling) {
-        this.newVel = new Vec2(this.newVel.x, 0);
-      }
-
-      let moveVec = this.newVel.scalarMult(TICK_DURATION_S);
-      this.newPos = this.pos.add(moveVec.scalarMult(usedEnergy));
-      let newHitbox: CircleHitBox = moveHitbox(this.hitbox!, this.newPos) as CircleHitBox;
-      const outHitSide: HitRectSide = {};
-
-      let closestHitSide: null | "Top" | "Bottom" | "Left" | "Right" = null;
-
-      for (const ent of closeEnts) {
-        if (!(ent instanceof Wall)) {
-          continue;
-        }
-        const wallHb = ent.worldHitbox();
-        const hit = hitTest(newHitbox, wallHb);
-        if (hit === null) {
-          continue;
-        }
-
-        const dist = hitDistanceCircleRect(oldHitBox, wallHb, moveVec, outHitSide);
-
-        if (dist === null || dist < 0) {
-          console.warn("failed to compute collision");
-          continue;
-        }
-        if (dist >= usedEnergy) {
-          continue;
-        }
-        // dist is shorter!
-
-        usedEnergy = dist;
-        closestHitSide = outHitSide.side!;
-
-        moveVec = this.newVel.scalarMult(TICK_DURATION_S);
-        this.newPos = this.pos.add(moveVec.scalarMult(usedEnergy));
-        newHitbox = moveHitbox(this.hitbox!, this.newPos) as CircleHitBox;
-      }
-
-      switch (closestHitSide) {
-        case "Left":
-        case "Right": {
-          this.touchWall = true;
-          break;
-        }
-        case "Top": {
-          this.touchGround = true;
-          break;
-        }
-        case "Bottom": {
-          this.touchCeiling = true;
-          break;
-        }
-      }
-
-      this.pos = this.newPos;
-      this.energy -= usedEnergy;
     }
 
-    this.commitPhysics();
+    let targetPosition: Vec2 | null = null;
+    if (this.heldByPlayer) {
+      this.physics = false;
+      const player = world.player();
+      const heldOrder = player.torches.indexOf(this.id);
+      targetPosition = world.player().worldHitbox().center;
 
-    if (this.vel.x == 0 && this.vel.y == 0) { // stopped on ground
-      this.curAnimId = 0;
-      this.curAnimFrameId = 0;
+      this.hideMainTorch = heldOrder === 0 && this.heldAnimationStartAt === null;
+
+      if (heldOrder > 0) {
+        const prevTorchId = player.torches[heldOrder - 1];
+        const prevTorch = world.entities.get(prevTorchId);
+        if (prevTorch !== undefined) {
+          const dir = this.pos.sub(prevTorch.pos);
+          targetPosition = prevTorch.pos.add(dir.normalize().scalarMult(Math.min(1, dir.len())));
+        }
+      }
+      if (this.heldAnimationStartAt === null || (((tick - this.heldAnimationStartAt) * TICK_DURATION_S) > 3)) {
+        this.newAcc = new Vec2(0, 0);
+        this.newVel = targetPosition.sub(this.pos).scalarDiv(TICK_DURATION_S);
+        this.heldAnimationStartAt = null;
+      } else {
+        const elapsed = tick - this.heldAnimationStartAt;
+        const dir = targetPosition.sub(this.pos);
+        this.newAcc = new Vec2(0, 0);
+        this.newVel = dir.normalize().scalarMult(Math.min(Math.abs(elapsed / (1 + dir.len()) / 5), MAX_HORIZONTAL_SPEED * 3)).add(this.oldVel.scalarDiv(TICK_DURATION_S * 100));
+        // this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
+      }
+    } else {
+
+      this.hideMainTorch = false;
+      this.physics = true;
+      this.newAcc = new Vec2(0, -GRAVITY); // todo: check water, etc.
+      this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
+      if (!this.canBeGrabbed) {
+        // console.log(this.newVel.x, this.newVel.y);
+      }
     }
-    else if (Math.abs(this.vel.x) > 0 && this.vel.y == 0) { // walking on ground
-      this.curAnimId = 0;
-      this.curAnimFrameId = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
-    }
-    else if (Math.abs(this.vel.y) > 0) { // in the air
-      // this.curAnimId = 1;
-      this.curAnimFrameId = 1;
+    this.doPhysics(world, tick);
+
+    if (targetPosition !== null) {
+      if (targetPosition.sub(this.pos).len() < 0.1) {
+        this.heldAnimationStartAt = null;
+      }
     }
   }
 
   render(view: PlayView): void {
+    if (this.hideMainTorch) {
+      return;
+    }
+
     const hb = this.worldHitbox();
     const cx = view.context;
     cx.fillStyle = "yellow";
@@ -145,5 +142,39 @@ export class Torch extends Entity {
     cx.arc(hb.center.x, hb.center.y, hb.r, 0, TAU);
     cx.closePath();
     cx.fill();
+  }
+
+  testGrab(player: Player): boolean {
+    if (this.heldByPlayer || !this.canBeGrabbed || player.torches.length >= MAX_TORCHES_HELD) {
+      return false;
+    }
+    return hitTest(player.worldHitbox(), this.grabHitbox()) !== null;
+  }
+
+  grab(player: Player, tick: number): void {
+    this.heldByPlayer = true;
+    player.torches.push(this.id);
+    this.heldAnimationStartAt = tick;
+    this.canBeGrabbed = false;
+  }
+
+  throw(world: World, player: Player, tick: number, strength: number): void {
+    strength = Math.min(strength, TORCH_MAX_POWER_DURATION);
+    this.heldByPlayer = false;
+    this.canBeGrabbed = false;
+    player.torches.splice(0, 1);
+    for (const torchId of player.torches) {
+      const torch = world.entities.get(torchId)! as Torch;
+      torch.heldAnimationStartAt = tick;
+    }
+    const ratio = (strength - TORCH_MIN_POWER_DURATION) / (TORCH_MAX_POWER_DURATION - TORCH_MIN_POWER_DURATION);
+    const angle = TORCH_MIN_POWER_ANGLE + ratio * (TORCH_MAX_POWER_ANGLE - TORCH_MIN_POWER_ANGLE);
+    // console.log(angle);
+    const speed = TORCH_MIN_POWER_SPEED + ratio * (TORCH_MAX_POWER_SPEED - TORCH_MIN_POWER_SPEED);
+    this.pos = player.worldHitbox().center;
+    this.vel = Vec2.polar(speed, angle).elemMult(new Vec2(player.dir, 1));
+    // console.log("throwVel");
+    // console.log(this.vel);
+    this.lastThrowAt = tick;
   }
 }

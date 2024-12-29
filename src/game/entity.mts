@@ -1,13 +1,25 @@
-import {CircleHitBox, HitBox, moveHitbox, Vec2} from "../hitbox.mjs";
+import {
+  CircleHitBox, EPSILON,
+  HitBox,
+  hitDistanceAnyRect,
+  HitRectSide,
+  hitTest,
+  moveHitbox,
+  Vec2
+} from "../hitbox.mjs";
 import type {PlayView} from "../app.mjs";
 import type {World} from "./world.mjs";
 import { Sprite } from "../sprite.mts";
+import {TICK_DURATION_S} from "./data.mjs";
+import type {Wall} from "./wall.mjs";
+import {TAG_WALL} from "./tag.mjs";
 
 export class Entity {
   /// Globally unique entity id
   public id: number;
   /// If this entity was created from a chunk, chunk id
   public chunkId: number | null;
+  public tags: Set<number>;
   /// Rendering depth, a higher value is rendered later (on top)
   public depth: number;
   /// Hitbox for collisions, in entity coords
@@ -68,6 +80,7 @@ export class Entity {
 
   constructor(id: number, chunkId: number | null, depth: number, hitbox?: HitBox) {
     this.id = id;
+    this.tags = new Set();
     this.chunkId = chunkId;
     this.depth = depth;
     this.hitbox = hitbox;
@@ -141,5 +154,88 @@ export class Entity {
     this.acc = this.newAcc;
     this.rotationSpeed = this.newRotationSpeed;
     this.angle = this.newAngle;
+  }
+
+  public doPhysics(world: World, tick: number): void {
+    if (this.physics) {
+      const closeEnts = world.getCloseEntities(this.pos);
+      while (this.energy > 0) {
+        let usedEnergy = Math.max(this.energy, 0.1);
+        const oldHitBox = moveHitbox(this.hitbox!, this.pos) as CircleHitBox;
+
+        if (this.touchWall) {
+          this.newVel = new Vec2(0, this.newVel.y);
+        }
+        if (this.touchGround || this.touchCeiling) {
+          this.newVel = new Vec2(this.newVel.x, 0);
+        }
+
+        let moveVec = this.newVel.scalarMult(TICK_DURATION_S);
+        this.newPos = this.pos.add(moveVec.scalarMult(usedEnergy));
+        let newHitbox: HitBox = moveHitbox(this.hitbox!, this.newPos) as CircleHitBox;
+        const outHitSide: HitRectSide = {};
+
+        let closestHitSide: null | "Top" | "Bottom" | "Left" | "Right" = null;
+
+        for (const ent of closeEnts) {
+          if (!(ent.tags.has(TAG_WALL))) {
+            continue;
+          }
+          const wall: Wall = ent as Wall;
+          const wallHb = wall.worldHitbox();
+          const hit = hitTest(newHitbox, wallHb);
+          if (hit === null) {
+            continue;
+          }
+
+          wall.hitAt = tick;
+
+          const dist = hitDistanceAnyRect(oldHitBox, wallHb, moveVec, outHitSide);
+
+          if (dist === null || dist < -EPSILON) {
+            console.warn(`failed to compute collision: ${dist}`);
+            if (world.playerControl.debug) {
+              console.log(JSON.stringify(newHitbox), JSON.stringify(wallHb));
+              console.log(JSON.stringify(oldHitBox), JSON.stringify(wallHb), JSON.stringify(moveVec), JSON.stringify(outHitSide), dist);
+            }
+            continue;
+          }
+          if (dist >= usedEnergy) {
+            continue;
+          }
+          // dist is shorter!
+
+          usedEnergy = dist;
+          closestHitSide = outHitSide.side!;
+
+          moveVec = this.newVel.scalarMult(TICK_DURATION_S);
+          this.newPos = this.pos.add(moveVec.scalarMult(usedEnergy));
+          newHitbox = moveHitbox(this.hitbox!, this.newPos) as CircleHitBox;
+        }
+
+        switch (closestHitSide) {
+          case "Left":
+          case "Right": {
+            this.touchWall = true;
+            break;
+          }
+          case "Top": {
+            this.touchGround = true;
+            break;
+          }
+          case "Bottom": {
+            this.touchCeiling = true;
+            break;
+          }
+        }
+
+        this.pos = this.newPos;
+        this.energy -= usedEnergy;
+      }
+    } else {
+      this.newPos = this.pos.add(this.newVel.scalarMult(TICK_DURATION_S));
+      this.energy -= 1;
+    }
+    this.commitPhysics();
   }
 }

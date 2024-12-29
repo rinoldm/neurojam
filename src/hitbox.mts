@@ -62,6 +62,10 @@ export class Vec2<T = number> {
     this.y = y;
   }
 
+  static polar(r: number, angle: number) {
+    return new Vec2(r * Math.cos(angle), r * Math.sin(angle));
+  }
+
   isZero(): boolean {
     return this.x === 0 && this.y === 0;
   }
@@ -96,6 +100,10 @@ export class Vec2<T = number> {
     return this.x * other.x + this.y * other.y;
   }
 
+  scalarDiv(this: Vec2, other: number): Vec2 {
+    return new Vec2(this.x / other, this.y / other);
+  }
+
   elemDiv(this: Vec2, other: Vec2): Vec2 {
     return new Vec2(this.x / other.x, this.y / other.y);
   }
@@ -126,9 +134,12 @@ export class Vec2<T = number> {
   }
 
   angle(this: Vec2): number {
-    return Math.atan2(this.x, this.y);
+    return Math.atan2(this.y, this.x);
   }
 
+  normalize(this: Vec2): Vec2 {
+    return Vec2.polar(1, this.angle());
+  }
 
   static ZERO: Vec2 = new Vec2(0, 0);
   static TOP_LEFT: Vec2 = new Vec2(-1, 1);
@@ -185,6 +196,24 @@ export function hitDistance(left: HitBox, right: HitBox, unit: Vec2): number | n
     return hitDistancePointSegment(left, right, unit);
   } else {
     throw new Error(`NotImplemented: hitTest(${left.type}, ${right.type})`)
+  }
+}
+
+/// Returns the distance to the first hit between `left` and `right` measured in `unit`
+/// - `0` means barely touching
+/// - a positive value means not touching (if the unit is pointing from `left` towards `right`)
+/// - a negative value means that there is a collision (if the unit is pointing from `left` towards `right`)
+/// - `null` means that there won't be any collision ever
+export function hitDistanceAnyRect(left: HitBox, right: RectData, unit: Vec2, outSide?: HitRectSide): number | null {
+  switch (left.type) {
+    case "Circle":
+      return hitDistanceCircleRect(left, right, unit, outSide);
+    case "Point":
+      return hitDistancePointRect(left, right, unit);
+    case "Rect":
+      return hitDistanceRectRect(left, right, unit, outSide);
+    default:
+      throw new Error(`NotImplemented: hitDistanceAnyRect(${left.type})`)
   }
 }
 
@@ -265,7 +294,7 @@ export function hitDistancePointRect(left: PointData, right: RectData, unit: Vec
 
 /// Hit distance with a rect approaching a rect
 export function hitDistanceRectRect(left: RectData, right: RectData, unit: Vec2, outSide?: HitRectSide): number | null {
-  const target : RectData = {center: right.center, r: left.r.add(right.r)};
+  const target: RectData = {center: right.center, r: left.r.add(right.r)};
   return hitDistancePointRect(left, target, unit, outSide);
 }
 
