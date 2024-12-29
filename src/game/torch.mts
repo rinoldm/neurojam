@@ -8,9 +8,8 @@ import type {World} from "./world.mts";
 import {TORCH_DEPTH} from "./depth.mjs";
 import {
   GRAVITY,
-  JUMP_DY,
   MAX_HORIZONTAL_SPEED,
-  MAX_TORCHES_HELD,
+  MAX_TORCHES_HELD, STABLE_SPEED_X, STABLE_SPEED_Y,
   TAU,
   TICK_DURATION_S,
   TORCH_GRAB_RADIUS,
@@ -63,7 +62,9 @@ export class Torch extends Entity {
     this.hideMainTorch = false;
     this.lastThrowAt = null;
     this.tags.add(TAG_TORCH);
-    this.lateralBounce = 0;
+    this.lateralBounce = -0.6;
+    this.groundBounce = -0.2;
+    this.groundFriction = 5;
   }
 
   static attach(world: World, pos: Vec2): Torch {
@@ -119,14 +120,34 @@ export class Torch extends Entity {
       this.physics = true;
       this.newAcc = new Vec2(0, -GRAVITY); // todo: check water, etc.
       this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
-      if (world.playerControl.jump && this.oldTouchGround) {
-        this.newVel = new Vec2(this.newVel.x, JUMP_DY);
-      }
       if (!this.canBeGrabbed) {
         // console.log(this.newVel.x, this.newVel.y);
       }
     }
     this.doPhysics(world, tick);
+    if (this.physics) {
+      if (this.touchWallLeft && this.oldVel.x < 0 && this.vel.x === 0) {
+        this.vel = new Vec2(this.oldVel.x * this.lateralBounce, this.oldVel.y);
+      }
+      if (this.touchWallRight && this.oldVel.x > 0 && this.vel.x === 0) {
+        this.vel = new Vec2(this.oldVel.x * this.lateralBounce, this.oldVel.y);
+      }
+      if (this.touchGround && this.oldVel.y < 0 && this.vel.y === 0) {
+        if (!this.oldTouchGround) {
+          this.vel = new Vec2(this.oldVel.x * 0.5, this.oldVel.y * this.groundBounce);
+        }
+        this.vel = new Vec2(this.oldVel.x, this.oldVel.y * this.groundBounce);
+      }
+      if (this.touchGround) {
+        this.vel = this.vel.elemMult(new Vec2(1 - this.groundFriction * TICK_DURATION_S, 1));
+        if (Math.abs(this.vel.x) < STABLE_SPEED_X) {
+          this.vel = new Vec2(0, this.vel.y);
+        }
+        if (Math.abs(this.vel.y) < STABLE_SPEED_Y) {
+          this.vel = new Vec2(this.vel.x, 0);
+        }
+      }
+    }
 
     if (targetPosition !== null) {
       if (targetPosition.sub(this.pos).len() < 0.1) {

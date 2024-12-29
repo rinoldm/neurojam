@@ -24,10 +24,14 @@ export const TAU = Math.PI * 2;
 export const TORCH_HIT_RADIUS = 0.25;
 export const TORCH_GRAB_RADIUS = 0.75;
 export const TORCH_ABANDON_RADIUS = 1.25;
-export const TORCH_MIN_POWER_DURATION = 0.2;
+export const TORCH_MIN_POWER_DURATION = 0.3;
 export const TORCH_MIN_POWER_ANGLE = TAU / 12;
 export const TORCH_MIN_POWER_SPEED = JUMP_DY * 0.75;
-export const TORCH_MAX_POWER_DURATION = 0.6;
+export const TORCH_MAX_POWER_DURATION = 1.2;
 export const TORCH_MAX_POWER_ANGLE = TAU / 6;
-export const TORCH_MAX_POWER_SPEED = JUMP_DY * 5;
+export const TORCH_MAX_POWER_SPEED = JUMP_DY * 2;
 export const MAX_TORCHES_HELD = 5;
+
+export const STABLE_SPEED_X = 1;
+export const STABLE_SPEED_Y = 1;
+

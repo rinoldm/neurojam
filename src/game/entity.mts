@@ -57,6 +57,8 @@ export class Entity {
   public touchGround: boolean;
   public touchCeiling: boolean;
   public touchWall: boolean;
+  public touchWallLeft: boolean;
+  public touchWallRight: boolean;
 
   // Old physics state, before the update
   public oldPos: Vec2;
@@ -68,6 +70,8 @@ export class Entity {
   public oldTouchGround: boolean;
   public oldTouchCeiling: boolean;
   public oldTouchWall: boolean;
+  public oldTouchWallLeft: boolean;
+  public oldTouchWallRight: boolean;
 
   // Target physics state, after the update (not yet commited)
   public newPos: Vec2;
@@ -75,7 +79,11 @@ export class Entity {
   public newAcc: Vec2;
   public newRotationSpeed: number;
   public newAngle: number;
+
   public lateralBounce: number;
+  public groundBounce: number;
+  public groundHitFriction: number;
+  public groundFriction: number;
 
   constructor(id: number, chunkId: number | null, depth: number, hitbox?: HitBox) {
     this.id = id;
@@ -107,10 +115,17 @@ export class Entity {
     this.oldTouchGround = false;
     this.oldTouchCeiling = false;
     this.oldTouchWall = false;
+    this.oldTouchWallLeft = false;
+    this.oldTouchWallRight = false;
     this.touchGround = false;
     this.touchCeiling = false;
     this.touchWall = false;
+    this.touchWallLeft = false;
+    this.touchWallRight = false;
     this.lateralBounce = 0;
+    this.groundBounce = 0;
+    this.groundHitFriction = 1;
+    this.groundFriction = 1;
   }
 
   update?(world: World, tick: number): void;
@@ -145,6 +160,8 @@ export class Entity {
     this.oldAngle = this.angle;
     this.oldTouchGround = this.touchGround;
     this.oldTouchWall = this.touchWall;
+    this.oldTouchWallLeft = this.touchWallLeft;
+    this.oldTouchWallRight = this.touchWallRight;
     this.oldTouchCeiling = this.touchCeiling;
   }
 
@@ -168,7 +185,7 @@ export class Entity {
         const oldHitBox = moveHitbox(this.hitbox!, this.pos) as CircleHitBox;
 
         if (this.touchWall) {
-          this.newVel = this.newVel.elemMult(new Vec2(this.lateralBounce, 1));
+          this.newVel = new Vec2(0, this.newVel.y);
         }
         if (this.touchGround || this.touchCeiling) {
           this.newVel = new Vec2(this.newVel.x, 0);
@@ -218,9 +235,14 @@ export class Entity {
         }
 
         switch (closestHitSide) {
-          case "Left":
+          case "Left": {
+            this.touchWall = true;
+            this.touchWallRight = true;
+            break;
+          }
           case "Right": {
             this.touchWall = true;
+            this.touchWallLeft = true;
             break;
           }
           case "Top": {
