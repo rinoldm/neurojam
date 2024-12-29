@@ -52,11 +52,19 @@ export class Level {
   tileSize: Vec2;
   size: Vec2;
   layers: Layer[];
+  enterLeft: boolean;
+  enterRight: boolean;
+  exitLeft: boolean;
+  exitRight: boolean;
 
   private constructor() {
     this.tileSize = new Vec2(32, 32);
     this.size = new Vec2(CHUNK_WIDTH, CHUNK_HEIGHT);
     this.layers = [];
+    this.enterLeft = false;
+    this.enterRight = false;
+    this.exitLeft = false;
+    this.exitRight = false;
   }
 
   public static default(): Level {
@@ -74,6 +82,29 @@ export class Level {
       Number.parseInt(root.getAttribute("width")!, 10),
       Number.parseInt(root.getAttribute("height")!, 10),
     );
+
+    const propertyNodes = root.querySelectorAll("& > properties > property");
+    for (const propertyNode of propertyNodes) {
+      const name: string = propertyNode.getAttribute("name")!;
+      // const _typ: string = propertyNode.getAttribute("type")!;
+      const valStr: string = propertyNode.getAttribute("value")!;
+      switch (name) {
+        case "enter_left":
+          level.enterLeft = valStr === "true";
+          break;
+        case "enter_right":
+          level.enterRight = valStr === "true";
+          break;
+        case "exit_left":
+          level.exitLeft = valStr === "true";
+          break;
+        case "exit_right":
+          level.exitLeft = valStr === "true";
+          break;
+        default:
+          throw new Error(`unexpected property ${JSON.stringify(name)}`);
+      }
+    }
 
     const layerNodes = root.querySelectorAll("& > layer, & > objectgroup");
     for (const layerNode of layerNodes) {

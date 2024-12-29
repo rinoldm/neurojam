@@ -5,7 +5,7 @@ import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT} from "./da
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
-import {LVL_PROTOTYPE4} from "../assets/index.mjs";
+import {LVL_000, REGULAR_LEVELS} from "../assets/index.mjs";
 import {Level} from "../level.mts";
 import {Shadow} from "./shadow.mjs";
 import {Torch} from "./torch.mts";
@@ -30,6 +30,7 @@ export class World {
   playerControl: PlayerControl;
   chunks: Chunk[];
   viewHeight: number;
+  levelFollowers: Map<number, LevelFollower[]>;
 
   constructor(assets: AssetLoader) {
     this.assets = assets;
@@ -46,6 +47,7 @@ export class World {
     };
     this.chunks = [];
     this.viewHeight = MAX_VIEWPORT_HEIGHT;
+    this.levelFollowers = computeFollowers(assets);
   }
 
   register<E extends Entity>(cb: (id: number) => E): E {
@@ -141,12 +143,30 @@ export class World {
     const lowestVisibleY = this.camera.y - this.viewHeight / 2;
     const neededChunks = 1 + Math.ceil(Math.abs(lowestVisibleY) / CHUNK_HEIGHT);
     while (this.chunks.length < neededChunks) {
-      const chunk: Chunk = {
-        id: this.chunks.length,
-        asset: LVL_PROTOTYPE4,
-        flipped: true,
-        applied: false,
-      };
+      let chunk: Chunk;
+      const chunkId = this.chunks.length;
+      if (chunkId === 0) {
+        chunk = {
+          id: chunkId,
+          asset: LVL_000,
+          flipped: Math.random() < 0.5,
+          applied: false,
+        };
+      } else {
+        const prevChunk = this.chunks[chunkId - 1];
+        const prevLevel: Level = this.assets.getLevel(prevChunk.asset);
+        let prevLeft = prevChunk.flipped ? prevLevel.exitLeft : prevLevel.exitRight;
+        let prevRight = prevChunk.flipped ? prevLevel.exitRight : prevLevel.exitLeft;
+        const connection = (+prevLeft) | ((+prevRight) << 1);
+        const followers: LevelFollower[] = this.levelFollowers.get(connection)!;
+        const picked = followers[Math.floor(Math.random() * followers.length)];
+        chunk = {
+          id: chunkId,
+          asset: picked.asset,
+          flipped: picked.flipped,
+          applied: false,
+        };
+      }
       this.chunks.push(chunk);
       this.applyChunk(chunk)
     }
@@ -167,9 +187,9 @@ export class World {
 
   public applyChunk(chunk: Chunk) {
     if (chunk.id === 0) {
-      this.#player = Player.attach(this, new Vec2(4.5, 2.5));
+      this.#player = Player.attach(this, new Vec2(CHUNK_WIDTH / 2, -10));
       Shadow.attach(this);
-      Torch.attach(this, new Vec2(16.5, 2.5));
+      Torch.attach(this, new Vec2(CHUNK_WIDTH / 2, -12));
       // Torch.attach(this, new Vec2(14.5, 2.5));
       // Torch.attach(this, new Vec2(12.5, 2.5));
     }
@@ -231,4 +251,23 @@ export class World {
   public posToChunkId(pos: Vec2): number {
     return Math.floor(-pos.y / CHUNK_HEIGHT);
   }
+}
+
+interface LevelFollower {
+  asset: LevelAssetRef,
+  flipped: boolean,
+}
+
+function computeFollowers(assets: AssetLoader): Map<number, LevelFollower[]> {
+  const result: Map<number, LevelFollower[]> = new Map([[0, []], [1, []], [2, []], [3, []]]);
+  for (const levelRef of REGULAR_LEVELS) {
+    const level: Level = assets.getLevel(levelRef);
+    const left = level.enterLeft ? 1 : 0;
+    const right = level.enterRight ? 1 : 0;
+    const prev = left | (right << 1);
+    result.get(prev)!.push({asset: levelRef, flipped: false} satisfies LevelFollower);
+    const prevFlipped = right | (left << 1);
+    result.get(prevFlipped)!.push({asset: levelRef, flipped: true} satisfies LevelFollower);
+  }
+  return result;
 }

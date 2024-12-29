@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="29" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="59">
+ <properties>
+  <property name="enter_left" type="bool" value="true"/>
+  <property name="enter_right" type="bool" value="false"/>
+  <property name="exit_left" type="bool" value="false"/>
+  <property name="exit_right" type="bool" value="true"/>
+ </properties>
+ <tileset firstgid="1" source="tls_dungeon_plain.xml"/>
+ <layer id="1" name="foreground" width="25" height="29">
+  <data encoding="csv">
+0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2,0,0,0,0,2,2,2,2,0,0,2,2,2,2,0,0,2,2,0,0,0,
+0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,2,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,2,2,0,0,0,2,
+0,0,0,2,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,2,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,2,2,2,2,2,2,0,0,0,0,0,2,2,2,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+2,2,2,2,0,0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,2,0,0,0,2,
+2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,2,2,2,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,2,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="wall">
+  <object id="33" type="Wall" x="96" y="0" width="704" height="32"/>
+  <object id="34" type="Wall" x="96" y="32" width="32" height="320"/>
+  <object id="35" type="Wall" x="0" y="512" width="128" height="32"/>
+  <object id="36" type="Wall" x="0" y="544" width="96" height="32"/>
+  <object id="37" type="Wall" x="0" y="576" width="64" height="32"/>
+  <object id="38" type="Wall" x="0" y="608" width="32" height="32"/>
+  <object id="39" type="Wall" x="0" y="896" width="704" height="32"/>
+  <object id="40" type="Wall" x="128" y="768" width="96" height="32"/>
+  <object id="42" type="Wall" x="256" y="128" width="128" height="32"/>
+  <object id="43" type="Wall" x="448" y="128" width="128" height="32"/>
+  <object id="44" type="Wall" x="640" y="128" width="64" height="32"/>
+  <object id="45" type="Wall" x="640" y="160" width="32" height="736"/>
+  <object id="46" type="Wall" x="768" y="256" width="32" height="32"/>
+  <object id="47" type="Wall" x="672" y="384" width="32" height="32"/>
+  <object id="48" type="Wall" x="768" y="512" width="32" height="32"/>
+  <object id="49" type="Wall" x="672" y="640" width="32" height="32"/>
+  <object id="50" type="Wall" x="768" y="768" width="32" height="32"/>
+  <object id="51" type="Wall" x="608" y="640" width="32" height="32"/>
+  <object id="52" type="Wall" x="608" y="384" width="32" height="32"/>
+  <object id="53" type="Wall" x="608" y="256" width="32" height="32"/>
+  <object id="54" type="Wall" x="192" y="256" width="128" height="32"/>
+  <object id="55" type="Wall" x="256" y="384" width="192" height="32"/>
+  <object id="56" type="Wall" x="256" y="288" width="64" height="96"/>
+  <object id="57" type="Wall" x="448" y="512" width="96" height="32"/>
+  <object id="58" type="Wall" x="288" y="640" width="96" height="32"/>
+ </objectgroup>
+</map>

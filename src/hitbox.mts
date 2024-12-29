@@ -141,6 +141,14 @@ export class Vec2<T = number> {
     return Vec2.polar(1, this.angle());
   }
 
+  swap(): Vec2<T> {
+    return new Vec2(this.y, this.x);
+  }
+
+  shallowEq(other: Vec2<T>): boolean {
+    return this.x === other.x && this.y === other.y;
+  }
+
   static ZERO: Vec2 = new Vec2(0, 0);
   static TOP_LEFT: Vec2 = new Vec2(-1, 1);
   static TOP_RIGHT: Vec2 = new Vec2(1, 1);

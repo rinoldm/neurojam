@@ -62,9 +62,10 @@ export class Torch extends Entity {
     this.hideMainTorch = false;
     this.lastThrowAt = null;
     this.tags.add(TAG_TORCH);
-    this.lateralBounce = -0.6;
+    this.lateralBounce = -0.2;
     this.groundBounce = -0.2;
-    this.groundFriction = 5;
+    this.groundHitFriction = 15;
+    this.groundFriction = 6;
   }
 
   static attach(world: World, pos: Vec2): Torch {
@@ -134,7 +135,7 @@ export class Torch extends Entity {
       }
       if (this.touchGround && this.oldVel.y < 0 && this.vel.y === 0) {
         if (!this.oldTouchGround) {
-          this.vel = new Vec2(this.oldVel.x * 0.5, this.oldVel.y * this.groundBounce);
+          this.vel = this.vel.elemMult(new Vec2(1 - this.groundFriction * TICK_DURATION_S, 1));
         }
         this.vel = new Vec2(this.oldVel.x, this.oldVel.y * this.groundBounce);
       }
