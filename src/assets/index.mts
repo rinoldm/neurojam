@@ -11,7 +11,7 @@ import lvl_prototype3 from "./lvl_prototype3.tmx";
 import lvl_prototype4 from "./lvl_prototype4.tmx";
 
 import spr_neuro_body from "./spr_neuro_body.png"
-// import spr_neuro_arms from "./spr_neuro_arms.png"
+import spr_neuro_arms from "./spr_neuro_arms.png"
 
 
 export const GLOBAL_ASSET_LIST: AssetList = new AssetList();
@@ -26,4 +26,4 @@ export const LVL_PROTOTYPE3 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype3);
 export const LVL_PROTOTYPE4 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype4);
 
 export const SPR_NEURO_BODY = GLOBAL_ASSET_LIST.registerImage("spr_neuro_body.png", spr_neuro_body);
-// export const SPR_NEURO_ARMS = GLOBAL_ASSET_LIST.registerImage("spr_neuro_arms.png", spr_neuro_arms);
+export const SPR_NEURO_ARMS = GLOBAL_ASSET_LIST.registerImage("spr_neuro_arms.png", spr_neuro_arms);

@@ -7,7 +7,7 @@ import {
 import {Entity} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {PLAYER_DEPTH} from "./depth.mjs";
-import {SPR_NEURO_BODY} from "../assets/index.mjs";
+import {SPR_NEURO_BODY, SPR_NEURO_ARMS} from "../assets/index.mjs";
 import {
   GRAVITY,
   JUMP_DY,
@@ -32,6 +32,8 @@ export class Player extends Entity {
   dir: number;
   curAnimId: number;
   curAnimFrameId: number;
+  curAnimArmsId: number;
+  curAnimArmsFrameId: number;
 
   totalHP: number;
   currentHP: number;
@@ -46,6 +48,8 @@ export class Player extends Entity {
     this.dir = 1;
     this.curAnimId = 0;
     this.curAnimFrameId = 0;
+    this.curAnimArmsId = 0;
+    this.curAnimArmsFrameId = 0;
     this.totalHP = 3;
     this.currentHP = this.totalHP;
     this.torches = [];
@@ -54,7 +58,7 @@ export class Player extends Entity {
 
   static attach(world: World, pos: Vec2): Player {
     const spr_body = world.assets.getImage(SPR_NEURO_BODY);
-    const spr_arms = world.assets.getImage(SPR_NEURO_BODY); // TODO change to SPR_NEURO_ARMS
+    const spr_arms = world.assets.getImage(SPR_NEURO_ARMS);
 
     return world.register(id => new Player(id, spr_body, spr_arms, pos, {center: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2), r: new Vec2(PLAYER_HITBOX_WIDTH / 2, PLAYER_HITBOX_HEIGHT / 2)}));
   }
@@ -120,10 +124,24 @@ export class Player extends Entity {
     if (this.vel.x == 0 && this.vel.y == 0) { // stopped on ground
       this.curAnimId = 0;
       this.curAnimFrameId = 0;
+      if (this.torches.length == 0) { // TODO flag
+        this.curAnimArmsId = 0;
+      }
+      else {
+        this.curAnimArmsId = 1;
+      }
+      this.curAnimArmsFrameId = 0;
     }
     else if (Math.abs(this.vel.x) > 0 && this.vel.y == 0) { // walking on ground
       this.curAnimId = 0;
       this.curAnimFrameId = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
+      if (this.torches.length == 0) { // TODO flag
+        this.curAnimArmsId = 0;
+      }
+      else {
+        this.curAnimArmsId = 1;
+      }
+      this.curAnimArmsFrameId = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
     }
     else if (Math.abs(this.vel.y) > 0) { // in the air
       // this.curAnimId = 1;
@@ -145,6 +163,7 @@ export class Player extends Entity {
     view.context.translate(hb.center.x, hb.center.y);
     view.context.scale(-this.dir, -1);
     view.context.drawImage(this.spr_body, this.curAnimFrameId * 256, this.curAnimId * 256, 256 /* sprite width */, 256 /* sprite height */, -1, 1 + 1/16, 2, -2);
+    view.context.drawImage(this.spr_arms, this.curAnimArmsFrameId * 256, this.curAnimArmsId * 256, 256 /* sprite width */, 256 /* sprite height */, -1, 1 + 1/16, 2, -2);
     view.context.restore();
   }
 }
