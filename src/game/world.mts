@@ -172,6 +172,6 @@ export class World {
   }
 
   public posToChunkId(pos: Vec2): number {
-    return Math.floor(pos.y / CHUNK_HEIGHT);
+    return Math.floor(-pos.y / CHUNK_HEIGHT);
   }
 }

@@ -68,7 +68,7 @@ export class Player extends Entity {
     } else {
       this.newVel = new Vec2(0, this.newVel.y);
     }
-    this.newVel = this.newVel.clampAbs(new Vec2(MAX_FALL_SPEED, MAX_HORIZONTAL_SPEED));
+    // this.newVel = this.newVel.clampAbs(new Vec2(MAX_FALL_SPEED, MAX_HORIZONTAL_SPEED));
 
     const closeEnts = world.getCloseEntities(this.pos);
 
