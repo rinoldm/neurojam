@@ -88,6 +88,8 @@ export class Player extends Entity {
       let newHitbox: RectHitBox = moveHitbox(this.hitbox!, this.newPos) as RectHitBox;
       const outHitSide: HitRectSide = {};
 
+      let closestHitSide: null | "Top" | "Bottom" | "Left" | "Right" = null;
+
       for (const ent of closeEnts) {
         if (!(ent instanceof Wall)) {
           continue;
@@ -110,24 +112,27 @@ export class Player extends Entity {
         // dist is shorter!
 
         usedEnergy = dist;
-        switch (outHitSide.side) {
-          case "Left":
-          case "Right": {
-            this.touchWall = true;
-            break;
-          }
-          case "Top": {
-            this.touchGround = true;
-            break;
-          }
-          case "Bottom": {
-            this.touchCeiling = true;
-            break;
-          }
-        }
+        closestHitSide = outHitSide.side!;
+
         moveVec = this.newVel.scalarMult(TICK_DURATION_S);
         this.newPos = this.pos.add(moveVec.scalarMult(usedEnergy));
         newHitbox = moveHitbox(this.hitbox!, this.newPos) as RectHitBox;
+      }
+
+      switch (closestHitSide) {
+        case "Left":
+        case "Right": {
+          this.touchWall = true;
+          break;
+        }
+        case "Top": {
+          this.touchGround = true;
+          break;
+        }
+        case "Bottom": {
+          this.touchCeiling = true;
+          break;
+        }
       }
 
       this.pos = this.newPos;
