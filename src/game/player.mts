@@ -17,7 +17,7 @@ import {
   PLAYER_HITBOX_HEIGHT,
   PLAYER_HITBOX_WIDTH,
   MAX_JUMP_SPEED,
-  TORCH_MIN_POWER_DURATION, HEADBONK_TIME_WARP, JUMP_PEAK_DURATION, COYETTE_TIME
+  TORCH_MIN_POWER_DURATION, HEADBONK_TIME_WARP, JUMP_PEAK_DURATION, COYOTTE_TIME
 } from "./data.mjs";
 import {Torch} from "./torch.mjs";
 
@@ -96,7 +96,7 @@ export class Player extends Entity {
     this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
     if (world.playerControl.jump && this.lastOnGroundAt !== null && (this.lastJumpAt === null || this.lastJumpAt < this.lastOnGroundAt)) {
       const elapsed = (tick - this.lastOnGroundAt) * TICK_DURATION_S;
-      if (elapsed <= COYETTE_TIME) {
+      if (elapsed <= COYOTTE_TIME) {
         this.newVel = new Vec2(this.newVel.x, JUMP_DY);
         this.lastJumpAt = tick;
       }

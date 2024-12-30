@@ -20,7 +20,7 @@ export const MAX_JUMP_SPEED = Math.max(JUMP_DY, 50);
 export const MAX_HORIZONTAL_SPEED = 15;
 export const MAX_FALL_SPEED = 50;
 export const HEADBONK_TIME_WARP = 4;
-export const COYETTE_TIME = 0.05;
+export const COYOTTE_TIME = 0.05;
 
 export const TAU = Math.PI * 2;
 
