@@ -118,7 +118,7 @@ export class Level {
           level.exitLeft = valStr === "true";
           break;
         case "exit_right":
-          level.exitLeft = valStr === "true";
+          level.exitRight = valStr === "true";
           break;
         default:
           throw new Error(`unexpected property ${JSON.stringify(name)}`);
