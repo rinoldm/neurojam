@@ -91,12 +91,19 @@ export class World {
     if (player === null) {
       return;
     }
-    const curChunkCamera = this.posToChunkId(this.camera);
-    const curChunkPlayer = this.posToChunkId(player.pos);
-    if ((this.#player?.pos?.y ?? 0) % CHUNK_HEIGHT <= -(CHUNK_HEIGHT - 0.5) && curChunkCamera == curChunkPlayer && this.cameraTarget.y == this.camera.y) {
-      this.cameraTarget = new Vec2(CHUNK_WIDTH / 2, this.camera.y - CHUNK_HEIGHT);
-    }
-    this.camera = new Vec2(this.camera.x, this.camera.y + (this.cameraTarget.y - this.camera.y) * 1. / 20);
+
+    const transitionRadius = 1.5;
+    const playerCenter = player.worldHitbox().center;
+    const playerChunk = this.posToChunkId(playerCenter);
+    const chunkStart = -playerChunk * CHUNK_HEIGHT;
+    const playerPosInChunk = Math.abs(playerCenter.y - chunkStart);
+    const normalizedPos = playerPosInChunk < transitionRadius ? smooth(0.5 * playerPosInChunk / transitionRadius) :
+      playerPosInChunk < CHUNK_HEIGHT - transitionRadius ? smooth(0.5) : smooth(1 - 0.5 * (CHUNK_HEIGHT - playerPosInChunk) / transitionRadius);
+
+    const newCameraTarget = new Vec2(CHUNK_WIDTH / 2, chunkStart - CHUNK_HEIGHT * normalizedPos);
+    this.cameraTarget = this.cameraTarget.min(newCameraTarget); // prevent camera from going back up when jumping at a transition
+
+    this.camera = new Vec2(this.camera.x, this.camera.y + (this.cameraTarget.y - this.camera.y) / 20);
     if (Math.abs(this.cameraTarget.y - this.camera.y) < 1e-6) {
       this.camera = new Vec2(this.camera.x, this.cameraTarget.y);
     }
@@ -270,4 +277,13 @@ function computeFollowers(assets: AssetLoader): Map<number, LevelFollower[]> {
     result.get(prevFlipped)!.push({asset: levelRef, flipped: true} satisfies LevelFollower);
   }
   return result;
+}
+
+// converts a linear [0, 1[ value to one with a nul slope at 0.5
+function smooth(x: number): number {
+  if (x < 0.5) {
+    return -2 * x * (x - 1);
+  } else {
+    return 1 + 2 * x * (x  - 1)
+  }
 }
