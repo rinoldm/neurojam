@@ -394,8 +394,11 @@ export class App {
       const creditsText = document.createElement("p");
       creditsText.innerHTML = `
         A game by maxdefolsch and demurgos.<br><br>
-        Music: <a href="https://rest--vgmusic.bandcamp.com/track/foes-battle-1">"Foes (Battle 1)" by Rest!</a><br>
-        Minor AI assistance: NovelAI (base of Neuro sprite), Copilot (code tidbits)
+        <ul>
+            <li>Music: <a href="https://rest--vgmusic.bandcamp.com/track/foes-battle-1">"Foes (Battle 1)" by Rest!</a></li>
+            <li>Minor AI assistance: NovelAI (base of Neuro sprite), Copilot (code tidbits)</li>
+            <li>Tileset: <a href="https://pzuh.itch.io/the-pyramid-platformer-tileset">"The pyramid platformer tileset" by Pzuh</a></li>
+        </ul>
       `;
       const backButtonFromCredits = document.createElement("button");
       backButtonFromCredits.textContent = "Back";
