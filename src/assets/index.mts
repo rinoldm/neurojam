@@ -25,6 +25,8 @@ import img_back_000 from "./img_back_000.png";
 import img_back from "./img_back.png";
 import img_eyes from "./img_eyes.png";
 import img_torch_on from "./img_torch_on.png";
+import img_curse_eyes from "./img_curse_eyes.png";
+import img_curse_body from "./img_curse_body.png";
 
 export const GLOBAL_ASSET_LIST: AssetList = new AssetList();
 export const MUS_MAIN = GLOBAL_ASSET_LIST.registerAudio(mus_main);
@@ -50,6 +52,8 @@ export const IMG_BACK_000 = GLOBAL_ASSET_LIST.registerImage("img_back_000.png", 
 export const IMG_BACK = GLOBAL_ASSET_LIST.registerImage("img_back.png", img_back);
 export const IMG_EYES = GLOBAL_ASSET_LIST.registerImage("img_eyes.png", img_eyes);
 export const IMG_TORCH_ON = GLOBAL_ASSET_LIST.registerImage("img_torch_on.png", img_torch_on);
+export const IMG_CURSE_EYES = GLOBAL_ASSET_LIST.registerImage("img_curse_eyes.png", img_curse_eyes);
+export const IMG_CURSE_BODY = GLOBAL_ASSET_LIST.registerImage("img_curse_body.png", img_curse_body);
 
 export const REGULAR_LEVELS = [
   LVL_003,

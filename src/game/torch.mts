@@ -188,7 +188,6 @@ export class Torch extends Entity {
     }
 
     const torchImgSize = new Vec2(32, 56).scalarDiv(96);
-
     const hb = this.worldHitbox();
     const cx = view.context;
     const img = assets.getImage(IMG_TORCH_ON);

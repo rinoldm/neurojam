@@ -2,8 +2,10 @@ import { CircleHitBox, Vec2, moveHitbox, hitTest } from "../hitbox.mjs";
 import { Entity } from "./entity.mts";
 import type { World } from "./world.mts";
 import { PlayView } from "../app.mts";
-import { TICK_DURATION_S } from "./data.mjs";
+import {TAU, TICK_DURATION_S } from "./data.mjs";
 import { CURSE_DEPTH } from "./depth.mts";
+import {AssetLoader} from "../assets.mjs";
+import {IMG_CURSE_BODY, IMG_CURSE_EYES} from "../assets/index.mjs";
 
 export class Curse extends Entity {
   private static readonly BASE_SPEED = 5;
@@ -103,16 +105,27 @@ export class Curse extends Entity {
     }
   }
 
-  render(view: PlayView): void {
-    console.log(this.flicker);
+  render(view: PlayView, assets: AssetLoader): void {
     if (this.flicker) {
       return;
     }
+
+    const curseImgSize = new Vec2(6, 6);
+    const hb = this.worldHitbox()! as CircleHitBox;
     const cx = view.context;
-    cx.fillStyle = "orange";
-    cx.beginPath();
-    cx.arc(this.pos.x, this.pos.y, 1, 0, Math.PI * 2);
-    cx.closePath();
-    cx.fill();
+    const body = assets.getImage(IMG_CURSE_BODY);
+    const eyes = assets.getImage(IMG_CURSE_EYES);
+
+    const angle = (this.currentAngle + 360) % 360;
+    const dir = angle > 90 && angle <= 270 ? -1 : 1;
+    cx.save();
+    cx.translate(hb.center.x, hb.center.y);
+    cx.save();
+    cx.rotate(angle * TAU / 360);
+    cx.drawImage(body, 0, 0, body.width, body.height, -curseImgSize.x / 2, -curseImgSize.y / 2, curseImgSize.x, curseImgSize.y);
+    cx.restore();
+    cx.scale(dir, -1);
+    cx.drawImage(eyes, 0, 0, eyes.width, eyes.height, -curseImgSize.x / 2, -curseImgSize.y / 2, curseImgSize.x, curseImgSize.y);
+    cx.restore();
   }
 }
