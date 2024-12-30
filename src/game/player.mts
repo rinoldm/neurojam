@@ -17,7 +17,7 @@ import {
   PLAYER_HITBOX_HEIGHT,
   PLAYER_HITBOX_WIDTH,
   MAX_JUMP_SPEED,
-  TORCH_MIN_POWER_DURATION, HEADBONK_TIME_WARP, JUMP_PEAK_DURATION
+  TORCH_MIN_POWER_DURATION, HEADBONK_TIME_WARP, JUMP_PEAK_DURATION, COYETTE_TIME
 } from "./data.mjs";
 import {Torch} from "./torch.mjs";
 
@@ -42,6 +42,7 @@ export class Player extends Entity {
   loadUseSince: number | null;
   headBonkAt: number | null;
   lastJumpAt: number | null;
+  lastOnGroundAt: number | null;
 
   private constructor(id: number, spr_body: HTMLImageElement, spr_arms: HTMLImageElement, pos: Vec2, rect: RectData) {
     super(id, null, PLAYER_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
@@ -60,6 +61,7 @@ export class Player extends Entity {
     this.loadUseSince = null;
     this.headBonkAt = null;
     this.lastJumpAt = null;
+    this.lastOnGroundAt = null;
   }
 
   static attach(world: World, pos: Vec2): Player {
@@ -92,9 +94,12 @@ export class Player extends Entity {
     this.newAcc = new Vec2(0, hasGravity ? -GRAVITY : 0); // todo: check water, etc.
 
     this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
-    if (world.playerControl.jump && this.oldTouchGround) {
-      this.newVel = new Vec2(this.newVel.x, JUMP_DY);
-      this.lastJumpAt = tick;
+    if (world.playerControl.jump && this.lastOnGroundAt !== null && (this.lastJumpAt === null || this.lastJumpAt < this.lastOnGroundAt)) {
+      const elapsed = (tick - this.lastOnGroundAt) * TICK_DURATION_S;
+      if (elapsed <= COYETTE_TIME) {
+        this.newVel = new Vec2(this.newVel.x, JUMP_DY);
+        this.lastJumpAt = tick;
+      }
     }
     if (world.playerControl.right) {
       this.newVel = new Vec2(MAX_HORIZONTAL_SPEED, this.newVel.y);
@@ -111,6 +116,9 @@ export class Player extends Entity {
 
     if (this.touchCeiling) {
       this.headBonkAt = tick;
+    }
+    if (this.touchGround) {
+      this.lastOnGroundAt = tick;
     }
 
     const closeEnts = world.getCloseEntities(this.pos);
