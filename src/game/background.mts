@@ -101,8 +101,8 @@ export class Background extends Entity {
                 const localY = (localId - localX) / tileset.columns;
                 tileRef = {
                   image,
-                  x: tileset.tileSize.x * localX,
-                  y: tileset.tileSize.y * localY,
+                  x: tileset.margin + tileset.tileSize.x * localX + tileset.spacing * Math.max(0, localX - 1),
+                  y: tileset.margin + tileset.tileSize.y * localY + tileset.spacing * Math.max(0, localY - 1),
                   width: tileset.tileSize.x,
                   height: tileset.tileSize.y,
                 }

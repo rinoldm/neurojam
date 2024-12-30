@@ -4,10 +4,13 @@ import mus_main from "./mus_main.mp3";
 
 import tls_dungeonPlainImage from "./tls_dungeon_plain.png";
 import tls_dungeonPlainTileset from "./tls_dungeon_plain.xml";
+import tls_pyramid_png from "./tls_pyramid.png";
+import tls_pyramid_xml from "./tls_pyramid.xml";
 
 import lvl_000 from "./lvl_000.tmx";
 import lvl_001 from "./lvl_001.tmx";
 import lvl_002 from "./lvl_002.tmx";
+import lvl_003 from "./lvl_003.tmx";
 
 import lvl_prototype1 from "./lvl_prototype1.tmx";
 import lvl_prototype2 from "./lvl_prototype2.tmx";
@@ -24,9 +27,12 @@ export const MUS_MAIN = GLOBAL_ASSET_LIST.registerAudio(mus_main);
 
 export const TLS_DUNGEON_PLAIN_IMAGE = GLOBAL_ASSET_LIST.registerImage("tls_dungeon_plain.png", tls_dungeonPlainImage);
 export const TLS_DUNGEON_PLAIN_TILESET = GLOBAL_ASSET_LIST.registerTileset("tls_dungeon_plain.xml", tls_dungeonPlainTileset);
+export const TLS_PYRAMID_PNG = GLOBAL_ASSET_LIST.registerImage("tls_pyramid.png", tls_pyramid_png);
+export const TLS_PYRAMID = GLOBAL_ASSET_LIST.registerTileset("tls_pyramid.xml", tls_pyramid_xml);
 export const LVL_000 = GLOBAL_ASSET_LIST.registerLevel(lvl_000);
 export const LVL_001 = GLOBAL_ASSET_LIST.registerLevel(lvl_001);
 export const LVL_002 = GLOBAL_ASSET_LIST.registerLevel(lvl_002);
+export const LVL_003 = GLOBAL_ASSET_LIST.registerLevel(lvl_003);
 export const LVL_PROTOTYPE1 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype1);
 export const LVL_PROTOTYPE2 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype2);
 export const LVL_PROTOTYPE3 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype3);
@@ -40,4 +46,5 @@ export const IMG_BACK_000 = GLOBAL_ASSET_LIST.registerImage("img_back_000.png", 
 export const REGULAR_LEVELS = [
   LVL_001,
   LVL_002,
+  LVL_003,
 ];

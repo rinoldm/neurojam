@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tileset version="1.10" tiledversion="1.11.0" name="tls_pyramid" tilewidth="64" tileheight="64" spacing="4" margin="2" tilecount="48" columns="6">
+ <image source="tls_pyramid.png" width="408" height="544"/>
+</tileset>

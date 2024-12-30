@@ -4,12 +4,16 @@ export class Tileset {
   tileSize: Vec2;
   columns: number;
   count: number;
+  spacing: number;
+  margin: number;
   imageSource: string | null;
 
   private constructor() {
     this.tileSize = new Vec2(32, 32);
     this.columns = 1;
     this.count = 0;
+    this.spacing = 0;
+    this.margin = 0;
     this.imageSource = null;
   }
 
@@ -26,6 +30,16 @@ export class Tileset {
     );
     tileset.count = Number.parseInt(root.getAttribute("tilecount")!, 10);
     tileset.columns = Number.parseInt(root.getAttribute("columns")!, 10);
+
+    let spacingStr = root.getAttribute("spacing");
+    if (spacingStr !== null) {
+      tileset.spacing = Number.parseInt(spacingStr, 10);
+    }
+
+    let marginStr = root.getAttribute("margin");
+    if (marginStr !== null) {
+      tileset.spacing = Number.parseInt(marginStr, 10);
+    }
 
     const imageNode = root.querySelector("& > image");
     if (imageNode !== null) {
