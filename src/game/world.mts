@@ -260,7 +260,6 @@ export class World {
   }
 
   public gameOver(): void {
-    console.log("Game Over");
     this.gameOverTriggered = true;
   }
 
