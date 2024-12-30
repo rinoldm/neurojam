@@ -333,9 +333,12 @@ export class App {
       helpButton.textContent = "Help";
       const creditsButton = document.createElement("button");
       creditsButton.textContent = "Credits";
+      const aboutButton = document.createElement("button");
+      aboutButton.textContent = "About";
       mainMenu.appendChild(playButton);
       mainMenu.appendChild(helpButton);
       mainMenu.appendChild(creditsButton);
+      mainMenu.appendChild(aboutButton);
 
       // Help page
       const helpPage = document.createElement("div");
@@ -369,9 +372,27 @@ export class App {
       creditsPage.appendChild(backButtonFromCredits);
       creditsPage.style.display = "none";
 
+      // About page
+      const aboutPage = document.createElement("div");
+      aboutPage.classList.add("about-page");
+      const aboutText = document.createElement("p");
+      aboutText.innerHTML = `
+        Hi, I'm maxdefolsch, long-time Neuro-sama fan, and this is my very first game jam. To force myself to have the motivation to do this I also dragged my friend demurgos, who had never heard of Neuro-sama but is a genius developer who's done several game jams before.<br><br>
+        After some thinking we settled on the idea of a fast-paced, vertical pseudo-roguelike, where you need to make your way down a pyramid in a very limited time, but you also need to stay inside the halo of your torch to avoid summoning an indestructible fireball, and sometimes you actually need to take things slow to go around enemies, or even drop your torch temporarily to get through sections.<br><br>
+        Some of these mechanics were influenced by our life passion, an old Flash game called <a href="https://eternalfest.net/">Hammerfest</a>, which we have spent the last decade saving from oblivion together.<br><br>
+        I found out that three days is a really short time to make a game when you don't know what you're doing. I'm hoping we can improve this game in the future, and bring it to a more completed state.<br><br>
+        Hope you have fun with this little demo!
+      `;
+      const backButtonFromAbout = document.createElement("button");
+      backButtonFromAbout.textContent = "Back";
+      aboutPage.appendChild(aboutText);
+      aboutPage.appendChild(backButtonFromAbout);
+      aboutPage.style.display = "none";
+
       container.appendChild(mainMenu);
       container.appendChild(helpPage);
       container.appendChild(creditsPage);
+      container.appendChild(aboutPage);
       this.#root.appendChild(container);
 
       // Event listeners for navigation
@@ -396,6 +417,18 @@ export class App {
 
       backButtonFromCredits.addEventListener("click", () => {
         creditsPage.style.display = "none";
+        mainMenu.style.display = "block";
+      });
+
+      // Event listener for About button
+      aboutButton.addEventListener("click", () => {
+        mainMenu.style.display = "none";
+        aboutPage.style.display = "block";
+      });
+
+      // Event listener for Back button on About page
+      backButtonFromAbout.addEventListener("click", () => {
+        aboutPage.style.display = "none";
         mainMenu.style.display = "block";
       });
 
