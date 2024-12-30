@@ -115,10 +115,13 @@ export class App {
       }
       case "Menu": {
         // todo: switch on target elem
+        /*
         if (ev.type === "click") {
           this.#state.globalState = "Play";
         }
+        */
         break;
+        
       }
       case "Play": {
         if (ev.type === "keydown") {
@@ -189,23 +192,17 @@ export class App {
     this.#syncActiveView();
     switch (this.#state.globalState) {
       case "Load": {
-        const now: DOMHighResTimeStamp = performance.now();
-        const elapsedTimeMs: DOMHighResTimeStamp = now - (this.#startTime + this.#droppedTicks * TICK_DURATION_MS);
-        const hue = (elapsedTimeMs / 1000 * 60) % 360;
-        this.#root.style.color = `hsl(${hue}, 100%, 50%)`;
-
         const view: LoadView = this.loadView();
         const progress = this.#assets.progress();
-        view.labelText.data = progress.ready ? "The Curse of Ra" : "Loading...";
+        view.labelText.data = "Loading...";
         view.bar.max = Math.max(progress.assetTotal, 1);
         view.bar.value = progress.assetOk;
+        if (progress.ready) {
+          this.#state.globalState = "Menu";
+        }
         break;
       }
       case "Menu": {
-        const now: DOMHighResTimeStamp = performance.now();
-        const elapsedTimeMs: DOMHighResTimeStamp = now - (this.#startTime + this.#droppedTicks * TICK_DURATION_MS);
-        const hue = (elapsedTimeMs / 1000 * 60) % 360;
-        this.#root.style.color = `hsl(${hue}, 100%, 50%)`;
 
         // Nothing to do beyond `syncActiveView`
         break;
@@ -243,7 +240,8 @@ export class App {
           const audio = this.#assets.getAudio(MUS_MAIN);
           this.#backgroundMusic = audio;
           audio.loop = true;
-          // audio.play();
+          audio.volume = 0.5;
+          audio.play();
         }
         break;
       }
@@ -311,17 +309,100 @@ export class App {
   public menuView(): MenuView {
     if (this.#menuView === null) {
       const container = document.createElement("div");
-      const label = document.createElement("p");
-      const labelText = document.createTextNode("Play");
-
-      container.appendChild(label);
-      label.appendChild(labelText);
+  
+      // Main menu
+      const mainMenu = document.createElement("div");
+      mainMenu.classList.add("main-menu"); // Added class for spacing
+      mainMenu.style.backgroundImage = "url('path/to/your/background.jpg')";
+      mainMenu.style.backgroundSize = "cover";
+  
+      const title = document.createElement("h1");
+      title.textContent = "The Curse of Ra";
+      const subtitle = document.createElement("h2");
+      subtitle.textContent = "(Demo)";
+      const smallSubtitle = document.createElement("h3");
+      smallSubtitle.textContent = "(game jams are hard)";
+      mainMenu.appendChild(title);
+      mainMenu.appendChild(subtitle);
+      mainMenu.appendChild(smallSubtitle);
+  
+      const playButton = document.createElement("button");
+      playButton.textContent = "Play";
+      const helpButton = document.createElement("button");
+      helpButton.textContent = "Help";
+      const creditsButton = document.createElement("button");
+      creditsButton.textContent = "Credits";
+      mainMenu.appendChild(playButton);
+      mainMenu.appendChild(helpButton);
+      mainMenu.appendChild(creditsButton);
+  
+      // Help page
+      const helpPage = document.createElement("div");
+      helpPage.classList.add("help-page");
+      const helpText = document.createElement("p");
+      helpText.innerHTML = `
+        Beware the Curse of Ra...<br>The darkness will soon consume your light.<br>Hurry and go down the pyramid, but stay close to your torch, or risk activating the curse!<br><br>
+        <strong>Controls</strong><br>
+        WASD/Arrow keys : Move and jump<br>
+        Space (+S/Down) : Throw (drop) a torch<br>
+        M : Toggle music
+      `;
+      const backButtonFromHelp = document.createElement("button");
+      backButtonFromHelp.textContent = "Back";
+      helpPage.appendChild(helpText);
+      helpPage.appendChild(backButtonFromHelp);
+      helpPage.style.display = "none";
+  
+      // Credits page
+      const creditsPage = document.createElement("div");
+      creditsPage.classList.add("credits-page");
+      const creditsText = document.createElement("p");
+      creditsText.innerHTML = `
+        A game by maxdefolsch and demurgos.<br><br>
+        Music: <a href="https://rest--vgmusic.bandcamp.com/track/foes-battle-1">"Foes (Battle 1)" by Rest!</a><br>
+        Minor AI assistance: NovelAI (base of Neuro sprite), Copilot (code tidbits)
+      `;
+      const backButtonFromCredits = document.createElement("button");
+      backButtonFromCredits.textContent = "Back";
+      creditsPage.appendChild(creditsText);
+      creditsPage.appendChild(backButtonFromCredits);
+      creditsPage.style.display = "none";
+  
+      container.appendChild(mainMenu);
+      container.appendChild(helpPage);
+      container.appendChild(creditsPage);
       this.#root.appendChild(container);
+  
+      // Event listeners for navigation
+      playButton.addEventListener("click", () => {
+        this.#state.globalState = "Play";
+      });
 
+      helpButton.addEventListener("click", () => {
+        mainMenu.style.display = "none";
+        helpPage.style.display = "block";
+      });
+  
+      creditsButton.addEventListener("click", () => {
+        mainMenu.style.display = "none";
+        creditsPage.style.display = "block";
+      });
+  
+      backButtonFromHelp.addEventListener("click", () => {
+        helpPage.style.display = "none";
+        mainMenu.style.display = "block";
+      });
+  
+      backButtonFromCredits.addEventListener("click", () => {
+        creditsPage.style.display = "none";
+        mainMenu.style.display = "block";
+      });
+  
       const view: MenuView = {
         container,
-        label,
-        labelText,
+        mainMenu,
+        helpPage,
+        creditsPage,
       };
       this.#menuView = view;
     }
@@ -370,8 +451,9 @@ interface LoadView {
 
 interface MenuView {
   container: HTMLDivElement;
-  label: HTMLParagraphElement;
-  labelText: Text;
+  mainMenu: HTMLDivElement;
+  helpPage: HTMLDivElement;
+  creditsPage: HTMLDivElement;
 }
 
 export interface PlayView {
