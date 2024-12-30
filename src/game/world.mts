@@ -11,6 +11,7 @@ import {Shadow} from "./shadow.mjs";
 import {Torch} from "./torch.mts";
 import {Background} from "./background.mjs";
 import {hitTest, moveHitbox} from "../hitbox.mjs";
+import { Curse } from "./curse.mts";
 
 export interface Chunk {
   id: number;
@@ -35,6 +36,8 @@ export class World {
   levelFollowers: Map<number, LevelFollower[]>;
   danger: number;
   isCurseActive: boolean;
+  curse: Curse | null = null;
+  gameOverTriggered: boolean = false;
 
   constructor(assets: AssetLoader) {
     this.assets = assets;
@@ -54,6 +57,7 @@ export class World {
     this.levelFollowers = computeFollowers(assets);
     this.danger = 0;
     this.isCurseActive = false;
+    this.gameOverTriggered = false;
   }
 
   register<E extends Entity>(cb: (id: number) => E): E {
@@ -214,14 +218,24 @@ export class World {
     cx.restore();
   }
 
-  public spawnCurse() {
+  public spawnCurse(): void {
     this.isCurseActive = true;
-    console.log("spawn curse");
+    const spawnPos = new Vec2(this.camera.x, this.camera.y - this.viewHeight / 2 - 10);
+    this.curse = Curse.attach(this, spawnPos);
   }
 
-  public despawnCurse() {
-    this.isCurseActive = false;
-    console.log("despawn curse");
+  public despawnCurse(): void {
+    if (this.curse) {
+      this.curse.lightSources = [];
+      this.entities.delete(this.curse.id);
+      this.curse = null;
+      this.isCurseActive = false;
+    }
+  }
+
+  public gameOver(): void {
+    console.log("Game Over");
+    this.gameOverTriggered = true;
   }
 
   public player(): Player {

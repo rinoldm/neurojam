@@ -193,7 +193,7 @@ export class Player extends Entity {
 
     // view.context.fillStyle = "red";
     // view.context.fillRect(hb.center.x - hb.r.x, hb.center.y + hb.r.y, hb.r.x * 2, -hb.r.y * 2);
-
+  
     view.context.save();
     view.context.translate(hb.center.x, hb.center.y);
     view.context.scale(-this.dir, -1);

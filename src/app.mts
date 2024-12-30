@@ -32,6 +32,9 @@ export class App {
   #playView: null | PlayView;
   #backgroundMusic: null | HTMLAudioElement;
   #world: null | World;
+  gameOverTriggered: boolean = false;
+  gameOverStartTime: number | null = null;
+
 
   constructor(root: HTMLDivElement, startTime: DOMHighResTimeStamp) {
     this.#root = root;
@@ -190,8 +193,9 @@ export class App {
   }
 
   public render(): void {
-    this.#syncActiveView();
-    switch (this.#state.globalState) {
+      const now: DOMHighResTimeStamp = performance.now();
+      this.#syncActiveView();
+      switch (this.#state.globalState) {
       case "Load": {
         const view: LoadView = this.loadView();
         const progress = this.#assets.progress();
@@ -243,6 +247,33 @@ export class App {
           audio.loop = true;
           audio.volume = 0.5;
           audio.play();
+        }
+        if (this.world().gameOverTriggered && this.gameOverStartTime === null) {
+          this.gameOverStartTime = now;
+        }
+        if (this.world().gameOverTriggered && this.gameOverStartTime !== null) {
+          const gameOverElapsed = now - this.gameOverStartTime;
+          const fadeDuration = 2000;
+          const messageDuration = 5000;
+
+          if (gameOverElapsed < fadeDuration) {
+            const alpha = gameOverElapsed / fadeDuration;
+            cx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
+            cx.fillRect(0, 0, view.canvas.width, view.canvas.height);
+          } else {
+            cx.fillStyle = "black";
+            cx.fillRect(0, 0, view.canvas.width, view.canvas.height);
+            cx.fillStyle = "white";
+            cx.font = "30px Papyrus";
+            cx.textAlign = "center";
+            cx.fillText("Neuro was consumed by the curse.", view.canvas.width / 2, view.canvas.height / 2);
+          }
+
+          if (gameOverElapsed > messageDuration) {
+            this.#state.globalState = "Menu";
+            this.gameOverTriggered = false;
+            this.gameOverStartTime = null;
+          }
         }
         break;
       }
