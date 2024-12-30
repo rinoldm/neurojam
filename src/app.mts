@@ -55,6 +55,7 @@ export class App {
     const startTime: DOMHighResTimeStamp = performance.now();
     const app = new App(root, startTime);
     app.#enable();
+
     return app;
   }
 
@@ -81,7 +82,7 @@ export class App {
     const tickId = Math.floor(elapsed / TICK_DURATION_MS);
     const prevTickId = this.#tickCount + this.#droppedTicks
     const remainingTicks = tickId - prevTickId;
-    const ticksToCompute = Math.max(remainingTicks, 3);
+    const ticksToCompute = Math.min(remainingTicks, 3);
     const extraDroppedTicks = remainingTicks - ticksToCompute;
     // todo: print warning when dropping ticks
     this.#droppedTicks += extraDroppedTicks;
@@ -121,7 +122,7 @@ export class App {
         }
         */
         break;
-        
+
       }
       case "Play": {
         if (ev.type === "keydown") {
@@ -309,13 +310,13 @@ export class App {
   public menuView(): MenuView {
     if (this.#menuView === null) {
       const container = document.createElement("div");
-  
+
       // Main menu
       const mainMenu = document.createElement("div");
       mainMenu.classList.add("main-menu"); // Added class for spacing
       mainMenu.style.backgroundImage = "url('path/to/your/background.jpg')";
       mainMenu.style.backgroundSize = "cover";
-  
+
       const title = document.createElement("h1");
       title.textContent = "The Curse of Ra";
       const subtitle = document.createElement("h2");
@@ -325,7 +326,7 @@ export class App {
       mainMenu.appendChild(title);
       mainMenu.appendChild(subtitle);
       mainMenu.appendChild(smallSubtitle);
-  
+
       const playButton = document.createElement("button");
       playButton.textContent = "Play";
       const helpButton = document.createElement("button");
@@ -335,7 +336,7 @@ export class App {
       mainMenu.appendChild(playButton);
       mainMenu.appendChild(helpButton);
       mainMenu.appendChild(creditsButton);
-  
+
       // Help page
       const helpPage = document.createElement("div");
       helpPage.classList.add("help-page");
@@ -352,7 +353,7 @@ export class App {
       helpPage.appendChild(helpText);
       helpPage.appendChild(backButtonFromHelp);
       helpPage.style.display = "none";
-  
+
       // Credits page
       const creditsPage = document.createElement("div");
       creditsPage.classList.add("credits-page");
@@ -367,12 +368,12 @@ export class App {
       creditsPage.appendChild(creditsText);
       creditsPage.appendChild(backButtonFromCredits);
       creditsPage.style.display = "none";
-  
+
       container.appendChild(mainMenu);
       container.appendChild(helpPage);
       container.appendChild(creditsPage);
       this.#root.appendChild(container);
-  
+
       // Event listeners for navigation
       playButton.addEventListener("click", () => {
         this.#state.globalState = "Play";
@@ -382,22 +383,22 @@ export class App {
         mainMenu.style.display = "none";
         helpPage.style.display = "block";
       });
-  
+
       creditsButton.addEventListener("click", () => {
         mainMenu.style.display = "none";
         creditsPage.style.display = "block";
       });
-  
+
       backButtonFromHelp.addEventListener("click", () => {
         helpPage.style.display = "none";
         mainMenu.style.display = "block";
       });
-  
+
       backButtonFromCredits.addEventListener("click", () => {
         creditsPage.style.display = "none";
         mainMenu.style.display = "block";
       });
-  
+
       const view: MenuView = {
         container,
         mainMenu,

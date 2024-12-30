@@ -12,25 +12,27 @@ export const BASE_CELL_PX: number = 8;
 // case/second
 export const PLAYER_HITBOX_WIDTH: number = 1.15;
 export const PLAYER_HITBOX_HEIGHT: number = 1.875;
-export const MAX_HORIZONTAL_SPEED = 5;
-export const MAX_FALL_SPEED = 10;
-export const MAX_JUMP_SPEED = 20;
 export const JUMP_PEAK_HEIGHT = 4.3;
-export const JUMP_PEAK_DURATION = 0.8;
+export const JUMP_PEAK_DURATION = 0.3;
 export const GRAVITY = 2 * JUMP_PEAK_HEIGHT / (JUMP_PEAK_DURATION * JUMP_PEAK_DURATION);
 export const JUMP_DY = 2 * JUMP_PEAK_HEIGHT / JUMP_PEAK_DURATION;
+export const MAX_JUMP_SPEED = Math.max(JUMP_DY, 50);
+export const MAX_HORIZONTAL_SPEED = 15;
+export const MAX_FALL_SPEED = 30;
+
 export const TAU = Math.PI * 2;
 
 export const TORCH_HIT_RADIUS = 0.25;
 export const TORCH_GRAB_RADIUS = 0.75;
 export const TORCH_ABANDON_RADIUS = 1.25;
-export const TORCH_MIN_POWER_DURATION = 0.3;
+export const TORCH_MIN_POWER_DURATION = 0.2;
 export const TORCH_MIN_POWER_ANGLE = TAU / 12;
 export const TORCH_MIN_POWER_SPEED = JUMP_DY * 0.75;
-export const TORCH_MAX_POWER_DURATION = 1.2;
+export const TORCH_MAX_POWER_DURATION = 0.5;
 export const TORCH_MAX_POWER_ANGLE = TAU / 6;
 export const TORCH_MAX_POWER_SPEED = JUMP_DY * 2;
 export const MAX_TORCHES_HELD = 5;
+export const TORCH_GRAB_FRICTION = 0.8;
 
 export const STABLE_SPEED_X = 1;
 export const STABLE_SPEED_Y = 1;

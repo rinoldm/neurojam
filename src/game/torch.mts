@@ -11,7 +11,7 @@ import {
   MAX_HORIZONTAL_SPEED,
   MAX_TORCHES_HELD, STABLE_SPEED_X, STABLE_SPEED_Y,
   TAU,
-  TICK_DURATION_S,
+  TICK_DURATION_S, TORCH_GRAB_FRICTION,
   TORCH_GRAB_RADIUS,
   TORCH_HIT_RADIUS,
   TORCH_MAX_POWER_ANGLE,
@@ -113,7 +113,7 @@ export class Torch extends Entity {
         const elapsed = tick - this.heldAnimationStartAt;
         const dir = targetPosition.sub(this.pos);
         this.newAcc = new Vec2(0, 0);
-        this.newVel = dir.normalize().scalarMult(Math.min(Math.abs(elapsed / (1 + dir.len()) / 5), MAX_HORIZONTAL_SPEED * 3)).add(this.oldVel.scalarDiv(TICK_DURATION_S * 100));
+        this.newVel = dir.normalize().scalarMult(Math.min(Math.abs(elapsed / (1 + dir.len()) / TORCH_GRAB_FRICTION), MAX_HORIZONTAL_SPEED * 3)).add(this.oldVel.scalarDiv(TICK_DURATION_S * 100));
         // this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
       }
     } else {
