@@ -171,7 +171,7 @@ export class World {
     }
 
     if (isInLight) {
-      this.danger = Math.max(0, this.danger - 0.004);
+      this.danger = Math.max(0, this.danger - 0.001);
     } else {
       this.danger = Math.min(1, this.danger + 0.004);
     }
