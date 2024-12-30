@@ -20,7 +20,7 @@ export class Curse extends Entity {
   private constructor(id: number, pos: Vec2) {
     super(id, null, CURSE_DEPTH, { type: "Circle", center: Vec2.ZERO, r: 1 } satisfies CircleHitBox);
     this.pos = pos;
-    this.currentAngle = 0;
+    this.currentAngle = 90;
     this.speedMultiplier = 1;
     this.angularSpeedMultiplier = 1;
     this.lightSources.push({hitbox: { type: "Circle", center: Vec2.ZERO, r: Curse.LIGHT_RADIUS }, heal: false, visible: true});
