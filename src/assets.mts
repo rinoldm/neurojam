@@ -188,8 +188,11 @@ export class AssetLoader {
       const xhr = new XMLHttpRequest();
       const task: AssetTask<Tileset> = { target, loadedBytes: 0, xhr, ready: true, totalBytes: null };
       const loadCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
-        const tileset = Tileset.fromXml(xhr.response);
-        task.target = tileset;
+        const textDecoder = new TextDecoder();
+        const text = textDecoder.decode(xhr.response);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "application/xml");
+        task.target = Tileset.fromXml(doc);
         task.ready = true;
         if (e.lengthComputable) {
           task.totalBytes = e.total;
@@ -212,7 +215,7 @@ export class AssetLoader {
         task.loadedBytes = e.loaded;
       };
       xhr.open("GET", assetRef.url, true);
-      xhr.responseType = "document";
+      xhr.responseType = "arraybuffer";
       xhr.addEventListener("load", loadCb);
       xhr.addEventListener("progress", progressCb);
       xhr.addEventListener("loadstart", loadStartCb);
@@ -224,7 +227,11 @@ export class AssetLoader {
       const xhr = new XMLHttpRequest();
       const task: AssetTask<Level> = { target, loadedBytes: 0, xhr, ready: true, totalBytes: null };
       const loadCb = (e: ProgressEvent<XMLHttpRequestEventTarget>) => {
-        task.target = Level.fromXml(xhr.response);
+        const textDecoder = new TextDecoder();
+        const text = textDecoder.decode(xhr.response);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "application/xml");
+        task.target = Level.fromXml(doc);
         task.ready = true;
         if (e.lengthComputable) {
           task.totalBytes = e.total;
@@ -247,7 +254,7 @@ export class AssetLoader {
         task.loadedBytes = e.loaded;
       };
       xhr.open("GET", assetRef.url, true);
-      xhr.responseType = "document";
+      xhr.responseType = "arraybuffer";
       xhr.addEventListener("load", loadCb);
       xhr.addEventListener("progress", progressCb);
       xhr.addEventListener("loadstart", loadStartCb);

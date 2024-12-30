@@ -256,7 +256,7 @@ export class App {
           const gameOverElapsed = now - this.gameOverStartTime;
           const fadeDuration = 2000;
           const messageDuration = 10000;
-          
+
           if (gameOverElapsed < fadeDuration) {
             const alpha = gameOverElapsed / fadeDuration;
             cx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
@@ -346,7 +346,6 @@ export class App {
       // Main menu
       const mainMenu = document.createElement("div");
       mainMenu.classList.add("main-menu"); // Added class for spacing
-      mainMenu.style.backgroundImage = "url('path/to/your/background.jpg')";
       mainMenu.style.backgroundSize = "cover";
 
       const title = document.createElement("h1");
