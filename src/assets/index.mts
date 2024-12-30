@@ -12,6 +12,9 @@ import lvl_001 from "./lvl_001.tmx";
 import lvl_002 from "./lvl_002.tmx";
 import lvl_003 from "./lvl_003.tmx";
 import lvl_004 from "./lvl_004.tmx";
+import lvl_005 from "./lvl_005.tmx";
+import lvl_006 from "./lvl_006.tmx";
+import lvl_start from "./lvl_start.tmx";
 
 import lvl_prototype1 from "./lvl_prototype1.tmx";
 import lvl_prototype2 from "./lvl_prototype2.tmx";
@@ -40,6 +43,9 @@ export const LVL_001 = GLOBAL_ASSET_LIST.registerLevel(lvl_001);
 export const LVL_002 = GLOBAL_ASSET_LIST.registerLevel(lvl_002);
 export const LVL_003 = GLOBAL_ASSET_LIST.registerLevel(lvl_003);
 export const LVL_004 = GLOBAL_ASSET_LIST.registerLevel(lvl_004);
+export const LVL_005 = GLOBAL_ASSET_LIST.registerLevel(lvl_005);
+export const LVL_006 = GLOBAL_ASSET_LIST.registerLevel(lvl_006);
+export const LVL_START = GLOBAL_ASSET_LIST.registerLevel(lvl_start);
 export const LVL_PROTOTYPE1 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype1);
 export const LVL_PROTOTYPE2 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype2);
 export const LVL_PROTOTYPE3 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype3);
@@ -58,4 +64,6 @@ export const IMG_CURSE_BODY = GLOBAL_ASSET_LIST.registerImage("img_curse_body.pn
 export const REGULAR_LEVELS = [
   LVL_003,
   LVL_004,
+  LVL_005,
+  LVL_006,
 ];

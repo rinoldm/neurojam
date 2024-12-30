@@ -41,4 +41,4 @@ export const TORCH_GRAB_FRICTION = 0.8;
 export const STABLE_SPEED_X = 1;
 export const STABLE_SPEED_Y = 1;
 
-export const SKY_COLOR = "#fff4d8";
+export const SKY_COLOR = "#7e5c0a";

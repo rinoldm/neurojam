@@ -5,7 +5,7 @@ import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT, SKY_COLOR}
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
-import {LVL_000, REGULAR_LEVELS} from "../assets/index.mjs";
+import {LVL_000, LVL_START, REGULAR_LEVELS} from "../assets/index.mjs";
 import {Level} from "../level.mts";
 import {Shadow} from "./shadow.mjs";
 import {Torch} from "./torch.mts";
@@ -276,7 +276,7 @@ export class World {
       if (chunkId === 0) {
         chunk = {
           id: chunkId,
-          asset: LVL_000,
+          asset: LVL_START,
           flipped: Math.random() < 0.5,
           applied: false,
         };

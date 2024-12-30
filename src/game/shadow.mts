@@ -78,28 +78,28 @@ export class Shadow extends Entity {
       acx.fill();
     }
 
-    for (let offset = 1; offset >= 0; offset -= 1) {
-      acx.fillStyle = offset > 0 ? "rgba(255,255,255,0.5)" : "white";
-
-      const topSunDepth = 1;
-      const offset45 = offset * Math.sqrt(2);
-      acx.save();
-      acx.translate(CHUNK_WIDTH / 2, 0);
-      acx.scale(this.#firstChunkIsFlipped ? -1 : 1, 1);
-      acx.beginPath();
-      acx.moveTo(-VIEW_WIDTH/2, MAX_VIEWPORT_HEIGHT);
-      acx.lineTo(-VIEW_WIDTH/2, -VIEW_WIDTH/2 -offset45 - topSunDepth);
-      acx.lineTo(0, -offset45 - topSunDepth);
-      // acx.lineTo(2.5, -2.5 -offset45 - topSunDepth);
-      // acx.lineTo(2.5, -9 - topSunDepth);
-      // acx.lineTo(4.5, -9 - topSunDepth);
-      // acx.lineTo(4.5, -4.5 -offset45 - topSunDepth);
-      acx.lineTo(VIEW_WIDTH/2, -VIEW_WIDTH/2 -offset45 - topSunDepth);
-      acx.lineTo(VIEW_WIDTH/2 + BORDER_WIDTH, MAX_VIEWPORT_HEIGHT);
-      acx.closePath();
-      acx.fill();
-      acx.restore();
-    }
+    // for (let offset = 1; offset >= 0; offset -= 1) {
+    //   acx.fillStyle = offset > 0 ? "rgba(255,255,255,0.5)" : "white";
+    //
+    //   const topSunDepth = 1;
+    //   const offset45 = offset * Math.sqrt(2);
+    //   acx.save();
+    //   acx.translate(CHUNK_WIDTH / 2, 0);
+    //   acx.scale(this.#firstChunkIsFlipped ? -1 : 1, 1);
+    //   acx.beginPath();
+    //   acx.moveTo(-VIEW_WIDTH/2, MAX_VIEWPORT_HEIGHT);
+    //   acx.lineTo(-VIEW_WIDTH/2, -VIEW_WIDTH/2 -offset45 - topSunDepth);
+    //   acx.lineTo(0, -offset45 - topSunDepth);
+    //   // acx.lineTo(2.5, -2.5 -offset45 - topSunDepth);
+    //   // acx.lineTo(2.5, -9 - topSunDepth);
+    //   // acx.lineTo(4.5, -9 - topSunDepth);
+    //   // acx.lineTo(4.5, -4.5 -offset45 - topSunDepth);
+    //   acx.lineTo(VIEW_WIDTH/2, -VIEW_WIDTH/2 -offset45 - topSunDepth);
+    //   acx.lineTo(VIEW_WIDTH/2 + BORDER_WIDTH, MAX_VIEWPORT_HEIGHT);
+    //   acx.closePath();
+    //   acx.fill();
+    //   acx.restore();
+    // }
 
     for (const ls of this.#lightSources) {
       if (!ls.heal) {
