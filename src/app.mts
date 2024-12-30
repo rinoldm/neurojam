@@ -250,12 +250,13 @@ export class App {
         }
         if (this.world().gameOverTriggered && this.gameOverStartTime === null) {
           this.gameOverStartTime = now;
+          this.#backgroundMusic.pause();
         }
         if (this.world().gameOverTriggered && this.gameOverStartTime !== null) {
           const gameOverElapsed = now - this.gameOverStartTime;
           const fadeDuration = 2000;
-          const messageDuration = 5000;
-
+          const messageDuration = 10000;
+          
           if (gameOverElapsed < fadeDuration) {
             const alpha = gameOverElapsed / fadeDuration;
             cx.fillStyle = `rgba(0, 0, 0, ${alpha})`;

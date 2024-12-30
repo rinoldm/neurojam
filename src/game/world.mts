@@ -150,6 +150,9 @@ export class World {
   }
 
   public render(view: PlayView): void {
+    if (this.gameOverTriggered) {
+      return;
+    }
     this.viewHeight = view.size.y;
     const cx = view.context;
     cx.fillStyle = SKY_COLOR;
