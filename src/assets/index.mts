@@ -11,6 +11,7 @@ import lvl_000 from "./lvl_000.tmx";
 import lvl_001 from "./lvl_001.tmx";
 import lvl_002 from "./lvl_002.tmx";
 import lvl_003 from "./lvl_003.tmx";
+import lvl_004 from "./lvl_004.tmx";
 
 import lvl_prototype1 from "./lvl_prototype1.tmx";
 import lvl_prototype2 from "./lvl_prototype2.tmx";
@@ -21,6 +22,7 @@ import spr_neuro_body from "./spr_neuro_body.png";
 import spr_neuro_arms from "./spr_neuro_arms.png";
 
 import img_back_000 from "./img_back_000.png";
+import img_back from "./img_back.png";
 
 export const GLOBAL_ASSET_LIST: AssetList = new AssetList();
 export const MUS_MAIN = GLOBAL_ASSET_LIST.registerAudio(mus_main);
@@ -33,6 +35,7 @@ export const LVL_000 = GLOBAL_ASSET_LIST.registerLevel(lvl_000);
 export const LVL_001 = GLOBAL_ASSET_LIST.registerLevel(lvl_001);
 export const LVL_002 = GLOBAL_ASSET_LIST.registerLevel(lvl_002);
 export const LVL_003 = GLOBAL_ASSET_LIST.registerLevel(lvl_003);
+export const LVL_004 = GLOBAL_ASSET_LIST.registerLevel(lvl_004);
 export const LVL_PROTOTYPE1 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype1);
 export const LVL_PROTOTYPE2 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype2);
 export const LVL_PROTOTYPE3 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype3);
@@ -42,9 +45,9 @@ export const SPR_NEURO_BODY = GLOBAL_ASSET_LIST.registerImage("spr_neuro_body.pn
 export const SPR_NEURO_ARMS = GLOBAL_ASSET_LIST.registerImage("spr_neuro_arms.png", spr_neuro_arms);
 
 export const IMG_BACK_000 = GLOBAL_ASSET_LIST.registerImage("img_back_000.png", img_back_000);
+export const IMG_BACK = GLOBAL_ASSET_LIST.registerImage("img_back.png", img_back);
 
 export const REGULAR_LEVELS = [
-  // LVL_001,
-  // LVL_002,
   LVL_003,
+  LVL_004,
 ];

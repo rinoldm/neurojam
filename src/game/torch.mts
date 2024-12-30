@@ -1,6 +1,6 @@
 import {PlayView} from "../app.mts";
 import {
-  CircleHitBox, hitTest, moveHitbox,
+  CircleHitBox, HitBox, hitTest, moveHitbox, RectHitBox,
   Vec2
 } from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
@@ -26,7 +26,7 @@ import {TAG_TORCH} from "./tag.mjs";
 const GRAB_HITBOX: CircleHitBox = {type: "Circle", center: Vec2.ZERO, r: TORCH_GRAB_RADIUS};
 
 export class Torch extends Entity {
-  worldHitbox(): CircleHitBox {
+  worldHitbox(): HitBox {
     return super.worldHitbox() as any;
   }
 
@@ -48,7 +48,7 @@ export class Torch extends Entity {
   lastThrowAt: number | null;
 
   private constructor(id: number, pos: Vec2) {
-    super(id, null, TORCH_DEPTH, {type: "Circle", center: Vec2.ZERO, r: TORCH_HIT_RADIUS} satisfies CircleHitBox)
+    super(id, null, TORCH_DEPTH, {type: "Rect", center: Vec2.ZERO, r: new Vec2(TORCH_HIT_RADIUS, TORCH_HIT_RADIUS)} satisfies RectHitBox)
     this.lightSources.push({type: "Circle", center: Vec2.ZERO, r: 10} satisfies CircleHitBox);
     this.pos = pos;
     this.dir = 1;
@@ -166,8 +166,8 @@ export class Torch extends Entity {
     const cx = view.context;
     cx.fillStyle = "yellow";
     cx.beginPath();
-    cx.moveTo(hb.center.x + hb.r, hb.center.y);
-    cx.arc(hb.center.x, hb.center.y, hb.r, 0, TAU);
+    cx.moveTo(hb.center.x + TORCH_HIT_RADIUS, hb.center.y);
+    cx.arc(hb.center.x, hb.center.y, TORCH_HIT_RADIUS, 0, TAU);
     cx.closePath();
     cx.fill();
   }
