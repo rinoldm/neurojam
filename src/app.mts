@@ -380,7 +380,7 @@ export class App {
         Beware the Curse of Ra...<br>The darkness will soon consume your light.<br>Hurry and go down the pyramid, but stay close to your torch, or risk activating the curse!<br><br>
         <strong>Controls</strong><br>
         WASD/Arrow keys : Move and jump<br>
-        Space (+S/Down) : Throw (drop) a torch<br>
+        Space : Throw a torch<br>
         M : Toggle music
       `;
       const backButtonFromHelp = document.createElement("button");
