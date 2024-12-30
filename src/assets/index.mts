@@ -23,6 +23,8 @@ import spr_neuro_arms from "./spr_neuro_arms.png";
 
 import img_back_000 from "./img_back_000.png";
 import img_back from "./img_back.png";
+import img_eyes from "./img_eyes.png";
+import img_torch_on from "./img_torch_on.png";
 
 export const GLOBAL_ASSET_LIST: AssetList = new AssetList();
 export const MUS_MAIN = GLOBAL_ASSET_LIST.registerAudio(mus_main);
@@ -46,6 +48,8 @@ export const SPR_NEURO_ARMS = GLOBAL_ASSET_LIST.registerImage("spr_neuro_arms.pn
 
 export const IMG_BACK_000 = GLOBAL_ASSET_LIST.registerImage("img_back_000.png", img_back_000);
 export const IMG_BACK = GLOBAL_ASSET_LIST.registerImage("img_back.png", img_back);
+export const IMG_EYES = GLOBAL_ASSET_LIST.registerImage("img_eyes.png", img_eyes);
+export const IMG_TORCH_ON = GLOBAL_ASSET_LIST.registerImage("img_torch_on.png", img_torch_on);
 
 export const REGULAR_LEVELS = [
   LVL_003,

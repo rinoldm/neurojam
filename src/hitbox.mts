@@ -379,7 +379,19 @@ export function hitTestRectCircle(left: RectData, right: CircleData): Vec2 | nul
 }
 
 export function hitTestCircleRect(left: CircleData, right: RectData): Vec2 | null {
-  return hitTestRectRect({center: left.center, r: new Vec2(left.r, left.r)}, right);
+  return hitTestCircleCircle(left, {center: right.center, r: right.r.len()});
+}
+
+export function hitTestCircleCircle(left: CircleData, right: CircleData): Vec2 | null {
+  const dir = right.center.sub(left.center);
+  const dist = dir.len();
+  const touchDist = left.r + right.r;
+  if (dist > touchDist) {
+    return null;
+  } else {
+    const intersectionRatio = 1 - (dist / touchDist);
+    return dir.scalarMult(intersectionRatio);
+  }
 }
 
 /// Get the top segment from a rect hitbox

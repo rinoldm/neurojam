@@ -10,10 +10,9 @@ import {
   GRAVITY,
   MAX_HORIZONTAL_SPEED,
   MAX_TORCHES_HELD, STABLE_SPEED_X, STABLE_SPEED_Y,
-  TAU,
   TICK_DURATION_S, TORCH_GRAB_FRICTION,
   TORCH_GRAB_RADIUS,
-  TORCH_HIT_RADIUS,
+  TORCH_HIT_RADIUS, TORCH_LIFETIME,
   TORCH_MAX_POWER_ANGLE,
   TORCH_MAX_POWER_DURATION, TORCH_MAX_POWER_SPEED,
   TORCH_MIN_POWER_ANGLE,
@@ -22,6 +21,8 @@ import {
 } from "./data.mjs";
 import type {Player} from "./player.mjs";
 import {TAG_TORCH} from "./tag.mjs";
+import {AssetLoader} from "../assets.mjs";
+import {IMG_TORCH_ON} from "../assets/index.mjs";
 
 const GRAB_HITBOX: CircleHitBox = {type: "Circle", center: Vec2.ZERO, r: TORCH_GRAB_RADIUS};
 
@@ -47,9 +48,10 @@ export class Torch extends Entity {
   hideMainTorch: boolean;
   lastThrowAt: number | null;
 
+  burnedTicks: number;
+
   private constructor(id: number, pos: Vec2) {
     super(id, null, TORCH_DEPTH, {type: "Rect", center: Vec2.ZERO, r: new Vec2(TORCH_HIT_RADIUS, TORCH_HIT_RADIUS)} satisfies RectHitBox)
-    this.lightSources.push({type: "Circle", center: Vec2.ZERO, r: 10} satisfies CircleHitBox);
     this.pos = pos;
     this.dir = 1;
     this.curAnimId = 0;
@@ -66,6 +68,7 @@ export class Torch extends Entity {
     this.groundBounce = -0.2;
     this.groundHitFriction = 15;
     this.groundFriction = 6;
+    this.burnedTicks = 0;
   }
 
   static attach(world: World, pos: Vec2): Torch {
@@ -114,7 +117,8 @@ export class Torch extends Entity {
         const dir = targetPosition.sub(this.pos);
         this.newAcc = new Vec2(0, 0);
         this.newVel = dir.normalize().scalarMult(Math.min(Math.abs(elapsed / (1 + dir.len()) / TORCH_GRAB_FRICTION), MAX_HORIZONTAL_SPEED * 3)).add(this.oldVel.scalarDiv(TICK_DURATION_S * 100));
-        // this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
+        const maxLen = Math.min(1, this.newVel.len() / dir.len() / TICK_DURATION_S);
+        this.newVel = this.newVel.scalarMult(maxLen);
       }
     } else {
       this.hideMainTorch = false;
@@ -151,25 +155,48 @@ export class Torch extends Entity {
     }
 
     if (targetPosition !== null) {
-      if (targetPosition.sub(this.pos).len() < 0.1) {
+      if (targetPosition.sub(this.pos).len() < 0.4) {
         this.heldAnimationStartAt = null;
       }
     }
+
+    if (this.heldByPlayer || this.burnedTicks > 0) {
+      this.burnedTicks += 1;
+    }
+    const burnDuration = this.burnedTicks * TICK_DURATION_S;
+
+    const remaingLife = TORCH_LIFETIME - burnDuration;
+    if (remaingLife < 0) {
+      this.lightSources = [];
+    } else {
+      const hitbox = {type: "Circle", center: Vec2.ZERO, r: 1 + 9 * remaingLife / TORCH_LIFETIME} satisfies CircleHitBox;
+      let flickering= false;
+      if (remaingLife < 5) {
+        flickering = (Math.floor(remaingLife * 6) % 3) === 0;
+      }
+      this.lightSources = [{
+        hitbox,
+        heal: true,
+        visible: !flickering,
+      }];
+    }
   }
 
-  render(view: PlayView): void {
+  render(view: PlayView, assets: AssetLoader): void {
     if (this.hideMainTorch) {
       return;
     }
 
+    const torchImgSize = new Vec2(32, 56).scalarDiv(96);
+
     const hb = this.worldHitbox();
     const cx = view.context;
-    cx.fillStyle = "yellow";
-    cx.beginPath();
-    cx.moveTo(hb.center.x + TORCH_HIT_RADIUS, hb.center.y);
-    cx.arc(hb.center.x, hb.center.y, TORCH_HIT_RADIUS, 0, TAU);
-    cx.closePath();
-    cx.fill();
+    const img = assets.getImage(IMG_TORCH_ON);
+    cx.save();
+    cx.translate(hb.center.x, hb.center.y);
+    cx.scale(1, -1);
+    cx.drawImage(img, 0, 0, img.width, img.height, -torchImgSize.x / 2, -torchImgSize.y / 2, torchImgSize.x, torchImgSize.y);
+    cx.restore();
   }
 
   testGrab(player: Player): boolean {

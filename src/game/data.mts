@@ -22,12 +22,14 @@ export const MAX_FALL_SPEED = 50;
 export const HEADBONK_TIME_WARP = 4;
 export const COYOTTE_TIME = 0.05;
 
+export const TORCH_LIFETIME = 60;
+
 export const TAU = Math.PI * 2;
 
 export const TORCH_HIT_RADIUS = 0.25;
 export const TORCH_GRAB_RADIUS = 0.75;
 export const TORCH_ABANDON_RADIUS = 1.25;
-export const TORCH_MIN_POWER_DURATION = 0.2;
+export const TORCH_MIN_POWER_DURATION = 0.01;
 export const TORCH_MIN_POWER_ANGLE = TAU / 12;
 export const TORCH_MIN_POWER_SPEED = JUMP_DY * 0.75;
 export const TORCH_MAX_POWER_DURATION = 0.5;

@@ -15,6 +15,12 @@ import type {Wall} from "./wall.mjs";
 import {TAG_WALL} from "./tag.mjs";
 import {AssetLoader} from "../assets.mjs";
 
+export interface LightSource {
+  hitbox: CircleHitBox,
+  heal: boolean,
+  visible: boolean,
+}
+
 export class Entity {
   /// Globally unique entity id
   public id: number;
@@ -30,7 +36,7 @@ export class Entity {
   #worldHitboxPos?: Vec2;
   #worldHitbox?: HitBox;
 
-  public lightSources: CircleHitBox[];
+  public lightSources: LightSource[];
 
   /// Sprite for rendering, in entity coords
   public sprite?: Sprite;

@@ -89,12 +89,37 @@ export class World {
   public update(tick: number) {
     this.genChunks();
 
+    let entitiesToDetach: Set<Entity> = new Set();
     for (const entity of this.entities.values()) {
-      entity.update?.(this, tick);
+      if (entity.isAttached) {
+        entity.update?.(this, tick);
+      } else {
+        entitiesToDetach.add(entity);
+      }
     }
-
     this.updateCamera();
     this.updateDanger();
+
+    if (entitiesToDetach.size > 0) {
+      for (const ent of entitiesToDetach) {
+        const chunkId = ent.chunkId;
+        if (chunkId !== null) {
+          this.entitiesByChunk.get(chunkId)!.delete(ent);
+        } else {
+          this.globalEntities.delete(ent);
+        }
+        this.entities.delete(ent.id);
+      }
+      if (this.depthOrder !== null) {
+        const newDepth = [];
+        for (const ent of this.depthOrder) {
+          if (!entitiesToDetach.has(ent)) {
+            newDepth.push(ent);
+          }
+        }
+        this.depthOrder = newDepth;
+      }
+    }
   }
 
   public updateCamera() {
@@ -130,8 +155,11 @@ export class World {
     let isInLight = false;
 
     for (const entity of this.entities.values()) {
+      if (entity instanceof Curse) {
+        continue;
+      }
       for (const lightSource of entity.lightSources) {
-        const lightHitbox = moveHitbox(lightSource, entity.pos);
+        const lightHitbox = moveHitbox(lightSource.hitbox, entity.pos);
         if (hitTest(playerHitbox, lightHitbox) !== null) {
           isInLight = true;
           break;
@@ -143,9 +171,17 @@ export class World {
     }
 
     if (isInLight) {
-      this.danger = Math.max(0, this.danger - 0.0005);
+      this.danger = Math.max(0, this.danger - 0.004);
     } else {
       this.danger = Math.min(1, this.danger + 0.004);
+    }
+
+    if (this.danger >= 1 && !this.isCurseActive) {
+      this.spawnCurse();
+    }
+
+    if (this.danger <= 0 && this.isCurseActive) {
+      this.despawnCurse();
     }
   }
 
@@ -181,11 +217,11 @@ export class World {
     const barWidth = 250; // TODO should be fixed size
     const barHeight = 40;
     const dangerLevel = this.danger * barWidth;
-  
+
     const gradient = cx.createLinearGradient(0, 0, barWidth, 0);
     gradient.addColorStop(0, "yellow");
     gradient.addColorStop(1, "red");
-  
+
     let shakeX = 0;
     let shakeY = 0;
     if (this.danger > 0.5) {
@@ -205,19 +241,6 @@ export class World {
     cx.lineWidth = 4;
     cx.strokeRect(10, 10, barWidth, barHeight);
 
-    if (this.danger >= 1 && !this.isCurseActive) {
-      this.spawnCurse();
-    }
-
-    if (this.#player != null) {
-      let player = this.#player;
-      const playerChunk = this.posToChunkId(player.worldHitbox().center!);
-      const cameraChunk = this.posToChunkId(this.camera);
-      if (playerChunk > cameraChunk && this.isCurseActive) {
-        this.despawnCurse();
-      }
-    }
-  
     cx.restore();
   }
 
@@ -230,7 +253,7 @@ export class World {
   public despawnCurse(): void {
     if (this.curse) {
       this.curse.lightSources = [];
-      this.entities.delete(this.curse.id);
+      this.curse.isAttached = false;
       this.curse = null;
       this.isCurseActive = false;
     }

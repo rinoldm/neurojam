@@ -14,6 +14,8 @@ export class Curse extends Entity {
   private currentAngle: number;
   private speedMultiplier: number;
   private angularSpeedMultiplier: number;
+  public flicker: boolean;
+  public flickerSwapAt: number | null;
 
   private constructor(id: number, pos: Vec2) {
     super(id, null, CURSE_DEPTH, { type: "Circle", center: Vec2.ZERO, r: 1 } satisfies CircleHitBox);
@@ -21,7 +23,9 @@ export class Curse extends Entity {
     this.currentAngle = 0;
     this.speedMultiplier = 1;
     this.angularSpeedMultiplier = 1;
-    this.lightSources.push({ type: "Circle", center: Vec2.ZERO, r: Curse.LIGHT_RADIUS });
+    this.lightSources.push({hitbox: { type: "Circle", center: Vec2.ZERO, r: Curse.LIGHT_RADIUS }, heal: false, visible: true});
+    this.flickerSwapAt = null;
+    this.flicker = false;
   }
 
   static attach(world: World, pos: Vec2): Curse {
@@ -74,6 +78,24 @@ export class Curse extends Entity {
 
     this.pos = this.pos.add(this.newVel);
 
+    if (world.danger < 0.3) {
+      let shouldSwap = false;
+      if (this.flickerSwapAt === null) {
+        shouldSwap = true;
+      } else {
+        const elapsedTime = (tick - this.flickerSwapAt) * TICK_DURATION_S;
+        if (elapsedTime > 0.1 && this.flicker || elapsedTime > 0.2 && !this.flicker) {
+          shouldSwap = true;
+        }
+      }
+      if (shouldSwap) {
+        this.flickerSwapAt = tick;
+        this.flicker = !this.flicker;
+      }
+    } else {
+      this.flicker = false;
+    }
+
     const playerHitbox = player.worldHitbox();
     const curseHitbox = moveHitbox(this.hitbox!, this.pos);
     if (hitTest(playerHitbox, curseHitbox) !== null) {
@@ -82,6 +104,10 @@ export class Curse extends Entity {
   }
 
   render(view: PlayView): void {
+    console.log(this.flicker);
+    if (this.flicker) {
+      return;
+    }
     const cx = view.context;
     cx.fillStyle = "orange";
     cx.beginPath();
