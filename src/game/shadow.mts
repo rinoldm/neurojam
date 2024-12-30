@@ -3,13 +3,13 @@ import { CircleHitBox, moveHitbox} from "../hitbox.mjs";
 import {Entity, LightSource} from "./entity.mjs";
 import type {World} from "./world.mts";
 import {SHADOW_DEPTH} from "./depth.mjs";
-import {BORDER_WIDTH, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT, TAU, VIEW_WIDTH} from "./data.mjs";
+import {TAU} from "./data.mjs";
 
 export class Shadow extends Entity {
   #lightSources: LightSource[];
   #alphaCanvas: HTMLCanvasElement;
   #alphaContext: CanvasRenderingContext2D;
-  #firstChunkIsFlipped : boolean;
+  // #firstChunkIsFlipped : boolean;
   #debug: boolean;
 
   constructor(id: number) {
@@ -19,7 +19,7 @@ export class Shadow extends Entity {
     this.#alphaCanvas.width = 100;
     this.#alphaCanvas.height = 100;
     this.#alphaContext = this.#alphaCanvas.getContext("2d")!;
-    this.#firstChunkIsFlipped = false;
+    // this.#firstChunkIsFlipped = false;
     this.#debug = false;
   }
 
@@ -36,7 +36,7 @@ export class Shadow extends Entity {
       }));
     }
     if (world.chunks.length > 0) {
-      this.#firstChunkIsFlipped = world.chunks[0].flipped;
+      // this.#firstChunkIsFlipped = world.chunks[0].flipped;
     }
     this.#debug = world.playerControl.debug !== null;
   }
