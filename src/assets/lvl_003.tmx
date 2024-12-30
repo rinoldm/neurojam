@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="29" tilewidth="64" tileheight="64" infinite="0" nextlayerid="4" nextobjectid="23">
-  <properties>
-   <property name="enter_left" type="bool" value="true"/>
-   <property name="enter_right" type="bool" value="false"/>
-   <property name="exit_left" type="bool" value="false"/>
-   <property name="exit_right" type="bool" value="true"/>
-  </properties>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="29" tilewidth="64" tileheight="64" infinite="0" nextlayerid="4" nextobjectid="25">
+ <properties>
+  <property name="enter_left" type="bool" value="true"/>
+  <property name="enter_right" type="bool" value="false"/>
+  <property name="exit_left" type="bool" value="false"/>
+  <property name="exit_right" type="bool" value="true"/>
+ </properties>
  <tileset firstgid="1" source="tls_pyramid.xml"/>
  <layer id="2" name="backgroud" width="25" height="29">
   <data encoding="csv">
@@ -96,5 +96,7 @@
   <object id="20" type="Wall" x="0" y="1088" width="192" height="64"/>
   <object id="21" type="Wall" x="0" y="1152" width="128" height="64"/>
   <object id="22" type="Wall" x="0" y="1216" width="64" height="64"/>
+  <object id="23" type="Wall" x="1344" y="768" width="64" height="64"/>
+  <object id="24" type="Wall" x="1216" y="1280" width="192" height="64"/>
  </objectgroup>
 </map>
