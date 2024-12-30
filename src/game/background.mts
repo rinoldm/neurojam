@@ -106,16 +106,6 @@ export class Background extends Entity {
                   width: tileset.tileSize.x,
                   height: tileset.tileSize.y,
                 }
-                if (gid == 27) {
-                  console.log(localId);
-                  console.log(localX);
-                  console.log(localY);
-                  console.log(tileset);
-                  console.log(gid);
-                  console.log(tileRef);
-                }
-                // 27
-                // ject { image: img, x: 130, y: 262, width: 64, height: 64 }
                 tileCache.set(gid, tileRef);
               }
               bcx.drawImage(tileRef.image, tileRef.x, tileRef.y, tileRef.width, tileRef.height, scale * (x + BORDER_WIDTH), scale * y, scale, scale);
