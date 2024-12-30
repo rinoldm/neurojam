@@ -265,6 +265,10 @@ export class App {
           this.#backgroundMusic.pause();
         }
         if (this.world().gameOverTriggered && this.gameOverStartTime !== null) {
+          const world = this.world();
+          const player = world.player();
+          const bestChunk = world.posToChunkId(player.pos);
+
           const gameOverElapsed = now - this.gameOverStartTime;
           const fadeDuration = 2000;
           const messageDuration = 10000;
@@ -279,7 +283,7 @@ export class App {
             cx.fillStyle = "white";
             cx.font = "30px Papyrus";
             cx.textAlign = "center";
-            cx.fillText("Neuro was consumed by the curse.", view.canvas.width / 2, view.canvas.height / 2);
+            cx.fillText(`Neuro was consumed by the curse. Reached depth: ${bestChunk}`, view.canvas.width / 2, view.canvas.height / 2);
           }
 
           if (gameOverElapsed > messageDuration) {

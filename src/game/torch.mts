@@ -1,6 +1,6 @@
 import {PlayView} from "../app.mts";
 import {
-  CircleHitBox, HitBox, hitTest, moveHitbox, RectHitBox,
+  CircleHitBox, EPSILON, HitBox, hitTest, moveHitbox, RectHitBox,
   Vec2
 } from "../hitbox.mjs";
 import {Entity} from "./entity.mjs";
@@ -49,8 +49,9 @@ export class Torch extends Entity {
   lastThrowAt: number | null;
 
   burnedTicks: number;
+  burnRate: number;
 
-  private constructor(id: number, pos: Vec2) {
+  private constructor(id: number, pos: Vec2, burnRate: number) {
     super(id, null, TORCH_DEPTH, {type: "Rect", center: Vec2.ZERO, r: new Vec2(TORCH_HIT_RADIUS, TORCH_HIT_RADIUS)} satisfies RectHitBox)
     this.pos = pos;
     this.dir = 1;
@@ -69,10 +70,11 @@ export class Torch extends Entity {
     this.groundHitFriction = 15;
     this.groundFriction = 6;
     this.burnedTicks = 0;
+    this.burnRate = burnRate;
   }
 
-  static attach(world: World, pos: Vec2): Torch {
-    return world.register(id => new Torch(id, pos, ));
+  static attach(world: World, pos: Vec2, burnRate: number): Torch {
+    return world.register(id => new Torch(id, pos, burnRate));
   }
 
   update(world: World, tick: number): void {
@@ -117,7 +119,7 @@ export class Torch extends Entity {
         const dir = targetPosition.sub(this.pos);
         this.newAcc = new Vec2(0, 0);
         this.newVel = dir.normalize().scalarMult(Math.min(Math.abs(elapsed / (1 + dir.len()) / TORCH_GRAB_FRICTION), MAX_HORIZONTAL_SPEED * 3)).add(this.oldVel.scalarDiv(TICK_DURATION_S * 100));
-        const maxLen = Math.min(1, this.newVel.len() / dir.len() / TICK_DURATION_S);
+        const maxLen = Math.min(1, this.newVel.len() / Math.max(EPSILON, dir.len() * TICK_DURATION_S));
         this.newVel = this.newVel.scalarMult(maxLen);
       }
     } else {
@@ -163,11 +165,14 @@ export class Torch extends Entity {
     if (this.heldByPlayer || this.burnedTicks > 0) {
       this.burnedTicks += 1;
     }
-    const burnDuration = this.burnedTicks * TICK_DURATION_S;
+    const burnDuration = this.burnedTicks * TICK_DURATION_S * this.burnRate;
 
     const remaingLife = TORCH_LIFETIME - burnDuration;
     if (remaingLife < 0) {
       this.lightSources = [];
+      if (!this.heldByPlayer) {
+        this.isAttached = false;
+      }
     } else {
       const hitbox = {type: "Circle", center: Vec2.ZERO, r: 1 + 9 * remaingLife / TORCH_LIFETIME} satisfies CircleHitBox;
       let flickering= false;

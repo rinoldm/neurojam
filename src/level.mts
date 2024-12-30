@@ -179,6 +179,17 @@ export class Level {
                 break;
               }
               case "Point": {
+                const id: string = objectNode.getAttribute("id")!;
+                const typ: string = objectNode.getAttribute("type")!;
+                const x: number = Number.parseInt(objectNode.getAttribute("x")!, 10);
+                const y: number = Number.parseInt(objectNode.getAttribute("y")!, 10);
+                objects.push({
+                  type: "Point",
+                  id,
+                  class: typ,
+                  x,
+                  y,
+                } satisfies PointTiledObject)
                 break;
               }
               case "Rect": {

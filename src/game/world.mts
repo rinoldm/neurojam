@@ -317,9 +317,6 @@ export class World {
     if (chunk.id === 0) {
       this.#player = Player.attach(this, new Vec2(CHUNK_WIDTH / 2, -10));
       Shadow.attach(this);
-      Torch.attach(this, new Vec2(CHUNK_WIDTH / 2, -12));
-      // Torch.attach(this, new Vec2(14.5, 2.5));
-      // Torch.attach(this, new Vec2(12.5, 2.5));
     }
 
     if (chunk.applied) {
@@ -350,6 +347,21 @@ export class World {
           const worldCenter = chunk.flipped ? chunkCenter.sub(levelAnchor).elemMult(Vec2.TOP_LEFT).add(worldAnchor) : chunkCenter.sub(levelAnchor).add(worldAnchor);
 
           Wall.attach(this, chunk.id, {center: worldCenter, r: worldRadius});
+
+          break;
+        }
+        case "Torch": {
+          if (obj.type !== "Point") {
+            throw new Error("`Wall` object must have type `Rect`");
+          }
+
+          const levelCorner = new Vec2(obj.x, obj.y);
+          const chunkCorner = levelCorner.elemDiv(level.tileSize).elemMult(Vec2.BOTTOM_RIGHT);
+          const chunkCenter = chunkCorner;
+
+          const worldCenter = chunk.flipped ? chunkCenter.sub(levelAnchor).elemMult(Vec2.TOP_LEFT).add(worldAnchor) : chunkCenter.sub(levelAnchor).add(worldAnchor);
+
+          Torch.attach(this, worldCenter, Math.max(1, chunk.id / 10));
 
           break;
         }

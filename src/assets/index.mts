@@ -14,7 +14,11 @@ import lvl_003 from "./lvl_003.tmx";
 import lvl_004 from "./lvl_004.tmx";
 import lvl_005 from "./lvl_005.tmx";
 import lvl_006 from "./lvl_006.tmx";
+import lvl_007 from "./lvl_007.tmx";
+import lvl_008 from "./lvl_008.tmx";
+import lvl_009 from "./lvl_009.tmx";
 import lvl_start from "./lvl_start.tmx";
+import lvl_010 from "./lvl_010.tmx";
 
 import lvl_prototype1 from "./lvl_prototype1.tmx";
 import lvl_prototype2 from "./lvl_prototype2.tmx";
@@ -45,7 +49,11 @@ export const LVL_003 = GLOBAL_ASSET_LIST.registerLevel(lvl_003);
 export const LVL_004 = GLOBAL_ASSET_LIST.registerLevel(lvl_004);
 export const LVL_005 = GLOBAL_ASSET_LIST.registerLevel(lvl_005);
 export const LVL_006 = GLOBAL_ASSET_LIST.registerLevel(lvl_006);
+export const LVL_007 = GLOBAL_ASSET_LIST.registerLevel(lvl_007);
+export const LVL_008 = GLOBAL_ASSET_LIST.registerLevel(lvl_008);
+export const LVL_009 = GLOBAL_ASSET_LIST.registerLevel(lvl_009);
 export const LVL_START = GLOBAL_ASSET_LIST.registerLevel(lvl_start);
+export const LVL_010 = GLOBAL_ASSET_LIST.registerLevel(lvl_010);
 export const LVL_PROTOTYPE1 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype1);
 export const LVL_PROTOTYPE2 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype2);
 export const LVL_PROTOTYPE3 = GLOBAL_ASSET_LIST.registerLevel(lvl_prototype3);
@@ -66,4 +74,8 @@ export const REGULAR_LEVELS = [
   LVL_004,
   LVL_005,
   LVL_006,
+  LVL_007,
+  LVL_008,
+  LVL_009,
+  LVL_010,
 ];

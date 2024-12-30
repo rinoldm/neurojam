@@ -58,6 +58,9 @@ export class Vec2<T = number> {
   readonly y: T;
 
   constructor(x: T, y: T) {
+    if (isNaN(x as any) || isNaN(y as any)) {
+      throw new Error("GotNaN");
+    }
     this.x = x;
     this.y = y;
   }
