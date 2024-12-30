@@ -285,7 +285,7 @@ export class World {
         const prevLevel: Level = this.assets.getLevel(prevChunk.asset);
         let prevLeft = prevChunk.flipped ? prevLevel.exitLeft : prevLevel.exitRight;
         let prevRight = prevChunk.flipped ? prevLevel.exitRight : prevLevel.exitLeft;
-        const connection = Math.min(1, (+prevLeft) | ((+prevRight) << 1));
+        const connection = (+prevLeft) | ((+prevRight) << 1);
         const followers: LevelFollower[] = this.levelFollowers.get(connection)!;
         const picked = followers[Math.floor(Math.random() * followers.length)];
         chunk = {
