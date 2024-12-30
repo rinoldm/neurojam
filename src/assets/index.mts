@@ -44,7 +44,7 @@ export const SPR_NEURO_ARMS = GLOBAL_ASSET_LIST.registerImage("spr_neuro_arms.pn
 export const IMG_BACK_000 = GLOBAL_ASSET_LIST.registerImage("img_back_000.png", img_back_000);
 
 export const REGULAR_LEVELS = [
-  LVL_001,
-  LVL_002,
+  // LVL_001,
+  // LVL_002,
   LVL_003,
 ];

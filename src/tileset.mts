@@ -38,7 +38,7 @@ export class Tileset {
 
     let marginStr = root.getAttribute("margin");
     if (marginStr !== null) {
-      tileset.spacing = Number.parseInt(marginStr, 10);
+      tileset.margin = Number.parseInt(marginStr, 10);
     }
 
     const imageNode = root.querySelector("& > image");

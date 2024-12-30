@@ -101,11 +101,21 @@ export class Background extends Entity {
                 const localY = (localId - localX) / tileset.columns;
                 tileRef = {
                   image,
-                  x: tileset.margin + tileset.tileSize.x * localX + tileset.spacing * Math.max(0, localX - 1),
-                  y: tileset.margin + tileset.tileSize.y * localY + tileset.spacing * Math.max(0, localY - 1),
+                  x: tileset.margin + (tileset.tileSize.x + tileset.spacing) * localX,
+                  y: tileset.margin + (tileset.tileSize.y + tileset.spacing) * localY,
                   width: tileset.tileSize.x,
                   height: tileset.tileSize.y,
                 }
+                if (gid == 27) {
+                  console.log(localId);
+                  console.log(localX);
+                  console.log(localY);
+                  console.log(tileset);
+                  console.log(gid);
+                  console.log(tileRef);
+                }
+                // 27
+                // ject { image: img, x: 130, y: 262, width: 64, height: 64 }
                 tileCache.set(gid, tileRef);
               }
               bcx.drawImage(tileRef.image, tileRef.x, tileRef.y, tileRef.width, tileRef.height, scale * (x + BORDER_WIDTH), scale * y, scale, scale);
