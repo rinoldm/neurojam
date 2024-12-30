@@ -19,6 +19,7 @@ export const JUMP_DY = 2 * JUMP_PEAK_HEIGHT / JUMP_PEAK_DURATION;
 export const MAX_JUMP_SPEED = Math.max(JUMP_DY, 50);
 export const MAX_HORIZONTAL_SPEED = 15;
 export const MAX_FALL_SPEED = 30;
+export const HEADBONK_TIME_WARP = 4;
 
 export const TAU = Math.PI * 2;
 

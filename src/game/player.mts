@@ -17,7 +17,7 @@ import {
   PLAYER_HITBOX_HEIGHT,
   PLAYER_HITBOX_WIDTH,
   MAX_JUMP_SPEED,
-  TORCH_MIN_POWER_DURATION
+  TORCH_MIN_POWER_DURATION, HEADBONK_TIME_WARP, JUMP_PEAK_DURATION
 } from "./data.mjs";
 import {Torch} from "./torch.mjs";
 
@@ -40,6 +40,8 @@ export class Player extends Entity {
   torches: number[];
   hasTorch: boolean;
   loadUseSince: number | null;
+  headBonkAt: number | null;
+  lastJumpAt: number | null;
 
   private constructor(id: number, spr_body: HTMLImageElement, spr_arms: HTMLImageElement, pos: Vec2, rect: RectData) {
     super(id, null, PLAYER_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox)
@@ -56,6 +58,8 @@ export class Player extends Entity {
     this.torches = [];
     this.hasTorch = false;
     this.loadUseSince = null;
+    this.headBonkAt = null;
+    this.lastJumpAt = null;
   }
 
   static attach(world: World, pos: Vec2): Player {
@@ -74,10 +78,23 @@ export class Player extends Entity {
 
     this.storeOldPhysics();
 
-    this.newAcc = new Vec2(0, -GRAVITY); // todo: check water, etc.
+    let hasGravity = true;
+    if (this.lastJumpAt !== null && this.headBonkAt !== null) {
+      if (this.headBonkAt >= this.lastJumpAt) {
+        const durationUntilBonk = (this.headBonkAt - this.lastJumpAt) * TICK_DURATION_S;
+        const durationSinceBonk = (tick - this.headBonkAt) * TICK_DURATION_S;
+        const normalizedDuration = durationUntilBonk + HEADBONK_TIME_WARP * durationSinceBonk;
+        if (normalizedDuration <= JUMP_PEAK_DURATION) {
+          hasGravity = false
+        }
+      }
+    }
+    this.newAcc = new Vec2(0, hasGravity ? -GRAVITY : 0); // todo: check water, etc.
+
     this.newVel = this.vel.add(this.newAcc.scalarMult(TICK_DURATION_S));
     if (world.playerControl.jump && this.oldTouchGround) {
       this.newVel = new Vec2(this.newVel.x, JUMP_DY);
+      this.lastJumpAt = tick;
     }
     if (world.playerControl.right) {
       this.newVel = new Vec2(MAX_HORIZONTAL_SPEED, this.newVel.y);
@@ -91,6 +108,10 @@ export class Player extends Entity {
     this.newVel = this.newVel.min(new Vec2(MAX_HORIZONTAL_SPEED, MAX_JUMP_SPEED)).max(new Vec2(-MAX_HORIZONTAL_SPEED, -MAX_FALL_SPEED));
 
     this.doPhysics(world, tick);
+
+    if (this.touchCeiling) {
+      this.headBonkAt = tick;
+    }
 
     const closeEnts = world.getCloseEntities(this.pos);
     for (const ent of closeEnts) {
