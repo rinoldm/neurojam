@@ -134,25 +134,31 @@ export class App {
             case "ArrowUp":
             case "w":
               this.world().playerControl.jump = this.#tickCount;
+              kev.preventDefault();
               break;
             case "ArrowLeft":
             case "a":
               this.world().playerControl.left = this.#tickCount;
+              kev.preventDefault();
               break;
             case "ArrowRight":
             case "d":
               this.world().playerControl.right = this.#tickCount;
+              kev.preventDefault();
               break;
             case "ArrowDown":
             case "s":
               this.world().playerControl.down = this.#tickCount;
+              kev.preventDefault();
               break;
             case " ":
             case "e":
               this.world().playerControl.use = this.#tickCount;
+              kev.preventDefault();
               break;
             case "b":
               this.world().playerControl.debug = this.#tickCount;
+              kev.preventDefault();
               break;
           }
         }
@@ -162,25 +168,31 @@ export class App {
             case "ArrowUp":
             case "w":
               this.world().playerControl.jump = null;
+              kev.preventDefault();
               break;
             case "ArrowLeft":
             case "a":
               this.world().playerControl.left = null;
+              kev.preventDefault();
               break;
             case "ArrowRight":
             case "d":
               this.world().playerControl.right = null;
+              kev.preventDefault();
               break;
             case "ArrowDown":
             case "s":
               this.world().playerControl.down = null;
+              kev.preventDefault();
               break;
             case " ":
             case "e":
               this.world().playerControl.use = null;
+              kev.preventDefault();
               break;
             case "b":
               this.world().playerControl.debug = null;
+              kev.preventDefault();
               break;
           }
         }
