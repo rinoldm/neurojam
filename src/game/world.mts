@@ -171,7 +171,7 @@ export class World {
 
   public renderDangerBar(view: PlayView): void {
     const cx = view.context;
-    const barWidth = 250;
+    const barWidth = 250; // TODO should be fixed size
     const barHeight = 40;
     const dangerLevel = this.danger * barWidth;
   
@@ -199,18 +199,27 @@ export class World {
     cx.strokeRect(10, 10, barWidth, barHeight);
 
     if (this.danger >= 1 && !this.isCurseActive) {
-      this.spawnCurse(view);
+      this.spawnCurse();
+    }
+
+    if (this.#player != null) {
+      let player = this.#player;
+      const playerChunk = this.posToChunkId(player.worldHitbox().center!);
+      const cameraChunk = this.posToChunkId(this.camera);
+      if (playerChunk > cameraChunk && this.isCurseActive) {
+        this.despawnCurse();
+      }
     }
   
     cx.restore();
   }
 
-  public spawnCurse(view: PlayView) {
+  public spawnCurse() {
     this.isCurseActive = true;
     console.log("spawn curse");
   }
 
-  public despawnCurse(view: PlayView) {
+  public despawnCurse() {
     this.isCurseActive = false;
     console.log("despawn curse");
   }
