@@ -140,14 +140,14 @@ export class Player extends Entity {
     }
     else if (Math.abs(this.vel.x) > 0 && this.vel.y == 0) { // walking on ground
       this.curAnimId = 0;
-      this.curAnimFrameId = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
+      this.curAnimFrameId = Math.floor(tick * TICK_DURATION_S / 0.1) % 2;
       if (!this.hasTorch) {
         this.curAnimArmsId = 0;
       }
       else {
         this.curAnimArmsId = 1;
       }
-      this.curAnimArmsFrameId = Math.floor(tick * TICK_DURATION_S / 0.2) % 2;
+      this.curAnimArmsFrameId = Math.floor(tick * TICK_DURATION_S / 0.1) % 2;
     }
     else if (Math.abs(this.vel.y) > 0) { // in the air
       // this.curAnimId = 1;

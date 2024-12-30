@@ -104,8 +104,8 @@ export class World {
     const newCameraTarget = new Vec2(CHUNK_WIDTH / 2, chunkStart - CHUNK_HEIGHT * normalizedPos);
     this.cameraTarget = this.cameraTarget.min(newCameraTarget); // prevent camera from going back up when jumping at a transition
 
-    this.camera = new Vec2(this.camera.x, this.camera.y + (this.cameraTarget.y - this.camera.y) / 20);
-    if (Math.abs(this.cameraTarget.y - this.camera.y) < 1e-6) {
+    this.camera = new Vec2(this.camera.x, this.camera.y + (this.cameraTarget.y - this.camera.y) / 8);
+    if (Math.abs(this.cameraTarget.y - this.camera.y) < 1e-3) {
       this.camera = new Vec2(this.camera.x, this.cameraTarget.y);
     }
   }
