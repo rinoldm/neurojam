@@ -35,3 +35,4 @@ export const MAX_TORCHES_HELD = 5;
 export const STABLE_SPEED_X = 1;
 export const STABLE_SPEED_Y = 1;
 
+export const SKY_COLOR = "#fff4d8";

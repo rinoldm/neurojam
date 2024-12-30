@@ -1,10 +1,22 @@
 import { Vec2 } from "./hitbox.mts";
 import {CHUNK_HEIGHT, CHUNK_WIDTH} from "./game/data.mjs";
 
-export type LayerType = "Tile" | "Object";
+export type LayerType = "Image" | "Tile" | "Object";
+
+export interface ImageLayer {
+  type: "Image";
+  id: string;
+  name: string;
+  source: string | null;
+}
 
 export interface TileLayer {
   type: "Tile";
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  data: number[];
 }
 
 export interface ObjectLayer {
@@ -14,7 +26,7 @@ export interface ObjectLayer {
   objects: TiledObject[];
 }
 
-export type Layer = TileLayer | ObjectLayer;
+export type Layer = ImageLayer | TileLayer | ObjectLayer;
 
 export type TiledObjectType = "Ellipse" | "Point" | "Rect";
 
@@ -48,6 +60,11 @@ export interface RectTiledObject {
 
 export type TiledObject = EllipseTiledObject | PointTiledObject | RectTiledObject;
 
+export interface TilesetRef {
+  first: number;
+  source: string;
+}
+
 export class Level {
   tileSize: Vec2;
   size: Vec2;
@@ -56,6 +73,7 @@ export class Level {
   enterRight: boolean;
   exitLeft: boolean;
   exitRight: boolean;
+  tilesets: TilesetRef[];
 
   private constructor() {
     this.tileSize = new Vec2(32, 32);
@@ -65,6 +83,7 @@ export class Level {
     this.enterRight = false;
     this.exitLeft = false;
     this.exitRight = false;
+    this.tilesets = [];
   }
 
   public static default(): Level {
@@ -106,10 +125,50 @@ export class Level {
       }
     }
 
-    const layerNodes = root.querySelectorAll("& > layer, & > objectgroup");
+    const tilesetNodes = root.querySelectorAll("& > tileset");
+    for (const tilesetNode of tilesetNodes) {
+      const first: number = Number.parseInt(tilesetNode.getAttribute("firstgid")!, 10);
+      const source: string = tilesetNode.getAttribute("source")!;
+      level.tilesets.push({first, source})
+    }
+
+    const layerNodes = root.querySelectorAll("& > imagelayer, & > layer, & > objectgroup");
     for (const layerNode of layerNodes) {
       switch (layerNode.tagName.toLowerCase()) {
+        case "imagelayer": {
+          let source: string | null = null;
+          const imageNode = layerNode.querySelector("& > image");
+          if (imageNode !== null) {
+            source = imageNode.getAttribute("source")!;
+          }
+          level.layers.push({
+            type: "Image",
+            id: layerNode.getAttribute("id")!,
+            name: layerNode.getAttribute("name")!,
+            source,
+          } satisfies ImageLayer);
+          break;
+        }
         case "layer": {
+          let data: number[] = [];
+          const dataNode = layerNode.querySelector("& > data");
+          if (dataNode !== null) {
+            for (const child of dataNode.childNodes) {
+              if (!(child instanceof Text)) {
+                continue;
+              }
+              const raw = child.data;
+              data = raw.split(",").map(s => Number.parseInt(s.trim(), 10)!);
+            }
+          }
+          level.layers.push({
+            type: "Tile",
+            id: layerNode.getAttribute("id")!,
+            name: layerNode.getAttribute("name")!,
+            width: Number.parseInt(layerNode.getAttribute("width")!, 10),
+            height: Number.parseInt(layerNode.getAttribute("height")!, 10),
+            data,
+          } satisfies TileLayer);
           break;
         }
         case "objectgroup": {
@@ -155,6 +214,10 @@ export class Level {
         }
       }
     }
+    level.tilesets.sort((a, b) => a.first - b.first);
+    // if (level.tilesets.length === 2) {
+    //   console.log(level);
+    // }
     return level;
   }
 
@@ -166,6 +229,16 @@ export class Level {
       }
     }
     return objects[Symbol.iterator]();
+  }
+
+  getTilesetRef(gid: number): TilesetRef | null {
+    let best: TilesetRef | null = null;
+    for (const ts of this.tilesets) {
+      if (gid >= ts.first) {
+        best = ts;
+      }
+    }
+    return best;
   }
 }
 

@@ -1,7 +1,7 @@
 import {AssetLoader, LevelAssetRef} from "../assets.mjs";
 import {Entity} from "./entity.mts";
 import {PlayView} from "../app.mjs";
-import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT} from "./data.mjs";
+import {BORDER_WIDTH, CHUNK_HEIGHT, CHUNK_WIDTH, MAX_VIEWPORT_HEIGHT, SKY_COLOR} from "./data.mjs";
 import {Vec2} from "../hitbox.mts";
 import {Player, PlayerControl} from "./player.mts";
 import {Wall} from "./wall.mts";
@@ -9,8 +9,9 @@ import {LVL_000, REGULAR_LEVELS} from "../assets/index.mjs";
 import {Level} from "../level.mts";
 import {Shadow} from "./shadow.mjs";
 import {Torch} from "./torch.mts";
+import {Background} from "./background.mjs";
 
-interface Chunk {
+export interface Chunk {
   id: number;
   asset: LevelAssetRef;
   flipped: boolean;
@@ -112,6 +113,8 @@ export class World {
   public render(view: PlayView): void {
     this.viewHeight = view.size.y;
     const cx = view.context;
+    cx.fillStyle = SKY_COLOR;
+    cx.fillRect(0, 0, cx.canvas.width, cx.canvas.height);
     cx.transform(view.canvas.width / view.size.x, 0, 0, -view.canvas.height / view.size.y, 0, 0);
     cx.translate(BORDER_WIDTH, 0);
     const midPoint = new Vec2(CHUNK_WIDTH / 2, -view.size.y / 2);
@@ -124,21 +127,8 @@ export class World {
       this.depthOrder = entities;
     }
 
-    const curChunk = this.posToChunkId(this.camera);
-    for (let cid = curChunk - 2; cid < curChunk + 3; cid++) {
-      const top = -cid * CHUNK_HEIGHT;
-      // const bottom = top - CHUNK_HEIGHT;
-      const left = -BORDER_WIDTH;
-      const right = CHUNK_WIDTH + BORDER_WIDTH;
-      const grad = cx.createLinearGradient(0, 0, 0, -CHUNK_HEIGHT);
-      grad.addColorStop(0, "orange");
-      grad.addColorStop(1, "blue");
-      cx.fillStyle = grad;
-      cx.fillRect(left, top, right - left, CHUNK_HEIGHT);
-    }
-
     for (const entity of this.depthOrder) {
-      entity.render?.(view);
+      entity.render?.(view, this.assets);
     }
   }
 
@@ -204,6 +194,8 @@ export class World {
     if (chunk.applied) {
       return;
     }
+
+    Background.attach(this, chunk.id);
 
     const worldAnchor = new Vec2(CHUNK_WIDTH / 2, -CHUNK_HEIGHT * chunk.id);
     const level: Level = this.assets.getLevel(chunk.asset);

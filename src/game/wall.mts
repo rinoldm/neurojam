@@ -13,12 +13,14 @@ export class Wall extends Entity {
 
   color: Color;
   hitAt: null | number;
+  #debug: boolean;
 
   constructor(id: number, chunkId: number, rect: RectData) {
     super(id, chunkId, HITBOX_DEPTH, {type: "Rect", ...rect} satisfies RectHitBox);
     this.tags.add(TAG_WALL);
     this.color = Color.rand();
     this.hitAt = null;
+    this.#debug = false;
   }
 
   static attach(world: World, chunkId: number, rect: RectData): Wall {
@@ -26,12 +28,16 @@ export class Wall extends Entity {
   }
 
   render(view: PlayView): void {
+    if (!this.#debug) {
+      return;
+    }
     view.context.fillStyle = this.hitAt === this.updatedAt ? "white" : this.color.toCss();
     const hb = this.worldHitbox();
     view.context.fillRect(hb.center.x - hb.r.x, hb.center.y - hb.r.y, hb.r.x * 2, hb.r.y * 2);
   }
 
-  update(_world: World, tick: number): void {
+  update(world: World, tick: number): void {
     this.updatedAt = tick;
+    this.#debug = world.playerControl.debug !== null;
   }
 }

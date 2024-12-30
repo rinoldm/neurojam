@@ -13,6 +13,7 @@ import { Sprite } from "../sprite.mts";
 import {TICK_DURATION_S} from "./data.mjs";
 import type {Wall} from "./wall.mjs";
 import {TAG_WALL} from "./tag.mjs";
+import {AssetLoader} from "../assets.mjs";
 
 export class Entity {
   /// Globally unique entity id
@@ -93,7 +94,6 @@ export class Entity {
     this.hitbox = hitbox;
     this.physics = hitbox !== undefined;
     this.lightSources = [];
-    this.chunkId = null;
     this.updatedAt = 0;
     this.isAttached = true;
     this.energy = 1;
@@ -130,7 +130,7 @@ export class Entity {
 
   update?(world: World, tick: number): void;
 
-  render?(playView: PlayView): void;
+  render?(playView: PlayView, assets: AssetLoader): void;
 
   public moveRelative(diff: Vec2): void {
     this.pos = this.pos.add(diff);

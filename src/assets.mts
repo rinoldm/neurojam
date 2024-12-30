@@ -268,12 +268,30 @@ export class AssetLoader {
     return this.#image.get(imageRef)!.target;
   }
 
+  public getImageByName(name: string): HTMLImageElement {
+    for (const [imageRef, image] of this.#image.entries()) {
+      if (imageRef.name === name) {
+        return image.target;
+      }
+    }
+    throw new Error(`image not found: ${JSON.stringify(name)}`);
+  }
+
   public getLevel(assetRef: LevelAssetRef): Level {
     return this.#level.get(assetRef)!.target;
   }
 
   public getTileset(assetRef: TilesetAssetRef): Tileset {
     return this.#tileset.get(assetRef)!.target;
+  }
+
+  public getTilesetByName(name: string): Tileset {
+    for (const [ref, task] of this.#tileset.entries()) {
+      if (ref.name === name) {
+        return task.target;
+      }
+    }
+    throw new Error(`tileset not found: ${JSON.stringify(name)}`);
   }
 
   public progress(): LoadProgress {
