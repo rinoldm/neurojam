@@ -378,7 +378,7 @@ export class App {
       const aboutText = document.createElement("p");
       aboutText.innerHTML = `
         Hi, I'm maxdefolsch, long-time Neuro-sama fan, and this is my very first game jam. To force myself to have the motivation to do this I also dragged my friend demurgos, who had never heard of Neuro-sama but is a genius developer who's done several game jams before.<br><br>
-        After some thinking we settled on the idea of a fast-paced, vertical pseudo-roguelike, where you need to make your way down a pyramid in a very limited time, but you also need to stay inside the halo of your torch to avoid summoning an indestructible fireball, and sometimes you actually need to take things slow to go around enemies, or even drop your torch temporarily to get through sections.<br><br>
+        After some thinking we settled on the idea of a fast-paced, vertical pseudo-roguelike, where you must make your way down a pyramid in a very limited time, but you also need to stay inside the halo of your torch to avoid summoning an indestructible fireball, and sometimes you actually have to take things slow to go around enemies, or even drop your torch temporarily to get through sections.<br><br>
         Some of these mechanics were influenced by our life passion, an old Flash game called <a href="https://eternalfest.net/">Hammerfest</a>, which we have spent the last decade saving from oblivion together.<br><br>
         I found out that three days is a really short time to make a game when you don't know what you're doing. I'm hoping we can improve this game in the future, and bring it to a more completed state.<br><br>
         Hope you have fun with this little demo!

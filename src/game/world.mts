@@ -10,6 +10,7 @@ import {Level} from "../level.mts";
 import {Shadow} from "./shadow.mjs";
 import {Torch} from "./torch.mts";
 import {Background} from "./background.mjs";
+import {hitTest, moveHitbox} from "../hitbox.mjs";
 
 export interface Chunk {
   id: number;
@@ -32,6 +33,8 @@ export class World {
   chunks: Chunk[];
   viewHeight: number;
   levelFollowers: Map<number, LevelFollower[]>;
+  danger: number;
+  isCurseActive: boolean;
 
   constructor(assets: AssetLoader) {
     this.assets = assets;
@@ -49,6 +52,8 @@ export class World {
     this.chunks = [];
     this.viewHeight = MAX_VIEWPORT_HEIGHT;
     this.levelFollowers = computeFollowers(assets);
+    this.danger = 0;
+    this.isCurseActive = false;
   }
 
   register<E extends Entity>(cb: (id: number) => E): E {
@@ -85,6 +90,7 @@ export class World {
     }
 
     this.updateCamera();
+    this.updateDanger();
   }
 
   public updateCamera() {
@@ -110,6 +116,35 @@ export class World {
     }
   }
 
+  public updateDanger() {
+    const player = this.#player;
+    if (player === null) {
+      return;
+    }
+
+    const playerHitbox = player.worldHitbox();
+    let isInLight = false;
+
+    for (const entity of this.entities.values()) {
+      for (const lightSource of entity.lightSources) {
+        const lightHitbox = moveHitbox(lightSource, entity.pos);
+        if (hitTest(playerHitbox, lightHitbox) !== null) {
+          isInLight = true;
+          break;
+        }
+      }
+      if (isInLight) {
+        break;
+      }
+    }
+
+    if (isInLight) {
+      this.danger = Math.max(0, this.danger - 0.0005);
+    } else {
+      this.danger = Math.min(1, this.danger + 0.004);
+    }
+  }
+
   public render(view: PlayView): void {
     this.viewHeight = view.size.y;
     const cx = view.context;
@@ -130,6 +165,54 @@ export class World {
     for (const entity of this.depthOrder) {
       entity.render?.(view, this.assets);
     }
+
+    this.renderDangerBar(view);
+  }
+
+  public renderDangerBar(view: PlayView): void {
+    const cx = view.context;
+    const barWidth = 250;
+    const barHeight = 40;
+    const dangerLevel = this.danger * barWidth;
+  
+    const gradient = cx.createLinearGradient(0, 0, barWidth, 0);
+    gradient.addColorStop(0, "yellow");
+    gradient.addColorStop(1, "red");
+  
+    let shakeX = 0;
+    let shakeY = 0;
+    if (this.danger > 0.5) {
+      const shakeIntensity = (this.danger - 0.5) * 20;
+      shakeX = (Math.random() - 0.5) * shakeIntensity;
+      shakeY = (Math.random() - 0.5) * shakeIntensity;
+    }
+
+    cx.save();
+    cx.resetTransform();
+    cx.translate(shakeX, shakeY);
+
+    cx.fillStyle = gradient;
+    cx.fillRect(10, 10, dangerLevel, barHeight);
+
+    cx.strokeStyle = "white";
+    cx.lineWidth = 4;
+    cx.strokeRect(10, 10, barWidth, barHeight);
+
+    if (this.danger >= 1 && !this.isCurseActive) {
+      this.spawnCurse(view);
+    }
+  
+    cx.restore();
+  }
+
+  public spawnCurse(view: PlayView) {
+    this.isCurseActive = true;
+    console.log("spawn curse");
+  }
+
+  public despawnCurse(view: PlayView) {
+    this.isCurseActive = false;
+    console.log("despawn curse");
   }
 
   public player(): Player {

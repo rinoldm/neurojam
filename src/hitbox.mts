@@ -319,7 +319,8 @@ export function minHitDistance(left: number | null, right: number | null): numbe
 
 /// Hit distance with a rect approaching a rect
 export function hitDistanceCircleRect(left: CircleData, right: RectData, unit: Vec2, outSide?: HitRectSide): number | null {
-  return hitDistanceRectRect({center: left.center, r: new Vec2(left.r, left.r)}, right, unit, outSide);
+  const target: RectData = {center: right.center, r: new Vec2(right.r.x + left.r, right.r.y + left.r)};
+  return hitDistancePointRect({center: left.center,}, target, unit, outSide);
 }
 
 /// `null` if no hit, `Vec2` representing the intersection depth on hit
