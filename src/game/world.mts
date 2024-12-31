@@ -283,8 +283,8 @@ export class World {
       } else {
         const prevChunk = this.chunks[chunkId - 1];
         const prevLevel: Level = this.assets.getLevel(prevChunk.asset);
-        let prevLeft = prevChunk.flipped ? prevLevel.exitLeft : prevLevel.exitRight;
-        let prevRight = prevChunk.flipped ? prevLevel.exitRight : prevLevel.exitLeft;
+        let prevLeft = prevChunk.flipped ? prevLevel.exitRight : prevLevel.exitLeft;
+        let prevRight = prevChunk.flipped ? prevLevel.exitLeft : prevLevel.exitRight;
         const connection = (+prevLeft) | ((+prevRight) << 1);
         const followers: LevelFollower[] = this.levelFollowers.get(connection)!;
         const picked = followers[Math.floor(Math.random() * followers.length)];
